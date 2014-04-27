@@ -32,5 +32,3 @@ override_dh_auto_build: $(BIN_PACKAGES:%=build-%)
 override_dh_installinit:
 	debian/dh_moduleupdate $*
 	dh_installinit
-
-.PHONY: binary binary-arch binary-indep clean
