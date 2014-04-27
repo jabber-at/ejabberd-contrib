@@ -14,6 +14,7 @@ ejabberd-modules (1:20140427-1) unstable; urgency=low
     * ejabberd-mod-register-web
     * ejabberd-mod-atom-pubsub
     * ejabberd-mod-ircd
+    * ejabberd-mod-log-chat
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 26 Apr 2014 16:05:51 +0200
 

@@ -147,16 +147,16 @@ Description: HTTP interface to POST stanzas into ejabberd
 # The most obvious missing functions in this module are operator actions
 # and a command to list channels.
 
-Package: ejabberd-mod-log-chat
-Architecture: any
-Depends: ejabberd (>= 2.1.5), ${misc:Depends}
-Conflicts: ejabberd (<< 2.1.5)
-Description: Log chat messages to text or html
- mod_log_chat is a ejabberd module aimed at logging chat messages in
- text files. mod_log_chat create one file per couple of chatters and
- per day (it doesn't log muc messages, use mod_muc_log for this).
- .
- It can store messages in plain text or HTML format.
+#Package: ejabberd-mod-log-chat
+#Architecture: any
+#Depends: ejabberd (>= 2.1.5), ${misc:Depends}
+#Conflicts: ejabberd (<< 2.1.5)
+#Description: Log chat messages to text or html
+# mod_log_chat is a ejabberd module aimed at logging chat messages in
+# text files. mod_log_chat create one file per couple of chatters and
+# per day (it doesn't log muc messages, use mod_muc_log for this).
+# .
+# It can store messages in plain text or HTML format.
 
 Package: ejabberd-mod-logxml
 Architecture: any
