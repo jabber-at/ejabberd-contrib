@@ -1,0 +1,28 @@
+README
+-----
+
+Unfortunatly the svn repository itself contains no documentation whatsoever.
+
+For more information I can direct you to the official ejabberd Installation and
+Operation Guide:
+	http://www.process-one.net/docs/ejabberd/guide_en.html
+
+There is also a good tutorial here:
+	http://www.ostinelli.net/how-to-install-ejabberd-200-with-postgresql-support/
+
+== Setup the database ==
+
+Please use google to find out how to create a database. You can set up the
+database-schema with the file pg.sql. On a shell you could do something
+like:
+	su postgres -c "psql -d <dbname> < pg.sql
+
+== Migrate an existing mnesia database ==
+
+This is not very complicated but the documentation is very bad. You need
+mod_ctlextra so ejabberdctl has the option export2odbc. Then do:
+	ejabberdctl export2odbc <vhost> <dir>
+... where <vhost> is the vhost as set by the "hosts" setting in ejabberd.cfg and
+<dir> must be a directory that already exists and is writable for the
+ejabberd-user. This will create a bunch of sql-files that you can import with
+the same command as in the "Setup the database"-section.

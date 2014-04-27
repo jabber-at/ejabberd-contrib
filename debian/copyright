@@ -1,0 +1,18 @@
+This package was debianized by Mathias Ertl <apt-repository@fsinf.at> on
+Sun, 24 Oct 2010 14:03:23 +0100.
+
+Upstream Author: Badlop, et al.
+
+This software is Copyright (c) 2002-2005 Badlop, et al.
+
+You are free to distribute this software under the terms of
+the GNU General Public License as published by the
+Free Software Foundation; either version 2, or (at your option) any
+later version.
+
+On Debian systems, the complete text of the GNU General Public
+License can be found in the file `/usr/share/common-licenses/GPL'.
+
+As a special exception, the author gives permission to link this program
+with the OpenSSL library and distribute the resulting binary.
+

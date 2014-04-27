@@ -1,0 +1,206 @@
+ejabberd-modules (1:20140426-1) unstable; urgency=low
+
+  * Move to new upstream git repository for sources.
+  * Use a new dateb-based versioning scheme, since git doesn't have increasing
+    commit numbers.
+  * Remove package-specific changelogs.
+  * Name mati@jabber.at as new maintainer address.
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 26 Apr 2014 16:05:51 +0200
+
+ejabberd-modules (1138-2) wheezy; urgency=low
+
+  * Increase debhelper dependency to 9.
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 16 Sep 2013 23:00:40 +0200
+
+ejabberd-modules (1138-1) wheezy; urgency=low
+
+  * Version bump from upstream.
+  * Remove subversion as build-dependency.
+  * Add erlang-tools as build-dependency.
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 11 Nov 2012 16:03:36 +0100
+
+ejabberd-modules (1133-1) wheezy; urgency=low
+
+  * Migration to git-buildpackage
+  * Implement the 'check' target for debian/rules that checks if all
+    code is up-to-date
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 11 Nov 2012 16:03:36 +0100
+
+ejabberd-modules (1123-1) wheezy; urgency=low
+
+  from the svn-changelog:
+  * rev. 1123: mod_admin_extra: Update module to work with ejabberd
+    2.1.10 and Erlang/OTP R15B
+  * rev. 1122: ejabberd-dev: Update mod_muc_room.hrl to ejabberd 2.1.9
+  * rev. 1121: mod_muc_admin: Send Unavailable presence when forcing a
+    room destruction
+  * rev. 1120: mysql: Recovered the original COPYING from
+    http://code.google.com/p/erlang-mysql-driver/
+  * rev. 1119: mod_admin_extra: Support in privacy_set also 'active'
+    elements.
+  * rev. 1118: mod_statsdx: Added two more clients to the client string
+    detection.
+  * rev. 1117: mod_muc_admin: Fix typo moc_muc in create_room (thanks
+    to Sergei)
+  * rev. 1116: mod_admin_extra: Run the privacy_iq_set hook for the
+    given Host, not for localhost
+
+  ejabberd-mod-webpresence.docs: No longer use brace extensions
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Thu, 05 Jan 2012 19:49:12 +0200
+
+ejabberd-modules (1115-1) wheezy; urgency=low
+  
+  from the svn-changelog:
+  * rev. 1115: Replace mentions of obsolete create_account to register
+  * rev. 1114: Update header files to ejabberd 2.1.7
+  * rev. 1113: Include ID attribute in IQ queries; don't include useless XML elements.
+  * rev. 1112: Fix: the occupant affiliation is an atom.
+  * rev. 1111: mod_irc must send presence unavailable to the departing occupant (EJAB-1417)
+  * rev. 1110: Bugfix when getting vcard value without exmpp installed (EJAB-1390)
+  * rev. 1109: Fix problem detection and report in vcard get (EJAB-1390)
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 04 Jun 2011 18:12:08 +0200
+
+ejabberd-modules (1108-1) natty; urgency=low
+
+  from the svn-changelog:
+  * rev. 1108: Fix bug when setting vcard elements of single depth (EJAB-1390)
+  * rev. 1107: New command send_direct_invitation
+  * rev. 1106: Fix to avoid returning non-matching rooms as 'ok'.
+  * rev. 1105: Support PostgreSQL 9.0 (EJAB-1359)(thanks to Stephen Gibberd and
+    Konstantin Nikiforov)
+  * rev. 1104: Add MSG files for new translations (thanks to Rain)
+  * rev. 1103: Translate mod_register_web to Russian and Ukrainian (thanks to
+    Rain)
+  * rev. 1102: Add support to ejabberd_xmlrpc to handle anonymous list argument
+    and string result
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 17 Oct 2010 15:03:10 +0200
+
+ejabberd-modules (1102-1) maverick; urgency=low
+
+  from the svn-changelog:
+  * rev. 1101: Simplify arguments of set_vcard2_multi and result of
+    get_vcard2_multi
+  * rev. 1100: Add new commands get_vcard2_multi and set_vcard2_multi
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 17 Oct 2010 15:03:10 +0200
+
+ejabberd-mod-admin-extra (1095-1) lucid; urgency=low
+
+  * enabled postinst script to automatically update modules... for now contains
+    lots of debugging output.
+  * bumped ejabberd version dependency to 2.1.5, as the automatic module
+    updating requires the update and update_list command.
+
+  from the svn-changelog:
+  * rev. 1095: Clarify description of delete_old_users (EJAB-1295)
+  * rev. 1094: New command set_last (EJAB-1295)
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Wed, 22 Sep 2010 12:58:03 +0200
+
+ejabberd-mod-admin-extra (1090-1) lucid; urgency=low
+
+  * added postinst to automatically update modules. This script is disabled
+    for now because ejabberdctl update always returns with exit-status 1.
+    See EJAB-1237.
+  
+  from the svn-changelog:
+  * rev. 1090: Convert Connection from atom to string in user_sessions_info and
+    connected_users_info
+  * rev. 1089: Fix format of get_roster command output (EJAB-1277)
+  * rev. 1086: Fix when getting default resource to request vcard (thanks to
+    Stefan Sakalik)
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Thu, 22 Jul 2010 13:03:25 +0200
+
+ejabberd-mod-admin-extra (1084-5) lucid; urgency=low
+
+  * remove postinst, this only causes problems.
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Fri, 11 Jun 2010 01:42:49 +0200
+
+ejabberd-mod-admin-extra (1084-1) lucid; urgency=low
+
+  from the svn-changelog:
+  * rev. 1084: New option module_resource, used when setting or getting users'
+               vcards.
+  * rev. 1082: The user_sessions_info command now also returns the Status and
+               StatusText
+  * rev. 1081: Fix small English typos
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Tue, 08 Jun 2010 10:37:36 +0200
+
+ejabberd-mod-admin-extra (1077-1) lucid; urgency=low
+
+  from the svn-changelog:
+  * rev. 1075: New ejabberd command user_sessions_info
+  * rev. 1076: Update c2s process when adding a new roster item.
+  * rev. 1077: Fix command description.
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 01 May 2010 16:07:52 +0200
+
+ejabberd-mod-admin-extra (1072-1) karmic; urgency=low
+
+  from the svn-changelog:
+  * rev. 1070: New commands private_get and private_set.
+  * rev. 1072: Change the private_get command to be easier to call
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 19 Apr 2010 14:36:05 +0200
+
+ejabberd-mod-admin-extra (1068-1) karmic; urgency=low
+
+  from the svn-changelog:
+  * rev. 1066: Add new commands: send_stanza_c2s, privacy_set
+  * rev. 1067: New command connected_users_vhost (thanks to Dand)
+  * rev. 1068: Include stanza id in the generated messages (thanks to Brian Acton)
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sun, 11 Apr 2010 14:04:33 +0200
+
+ejabberd-mod-admin-extra (1060-1) karmic; urgency=low
+
+  from the svn-changelog:
+  * rev. 1060: Improve get_roster function to get also shared roster items.
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 05 Apr 2010 22:38:59 +0200
+
+ejabberd-mod-admin-extra (1049-1) hardy; urgency=low
+
+  from the svn-changelog:
+  * rev. 1048: Support negative JID glob in process_rosteritems command.
+  * rev. 1049: Added new command connected_users_info
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Fri, 08 Jan 2010 19:31:30 +0100
+
+ejabberd-mod-admin-extra (1045-1) jaunty intrepid hardy lenny; urgency=low
+
+  * from the svn-changelog:
+    * rev. 1042: Fix command when setting empty display groups.
+    * rev. 1045: Fix typo in definition of command set_vcard2 (thanks to
+      Rustam Aliyev)(EJAB-1150)
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Mon, 04 Jan 2010 20:52:18 +0000
+
+ejabberd-mod-admin-extra (1041-1) jaunty intrepid hardy lenny; urgency=low
+
+  * this fixes EJAB-1031
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Thu, 10 Dec 2009 13:11:47 +0000
+
+ejabberd-mod-admin-extra (995-1) jaunty intrepid hardy lenny; urgency=low
+
+  * bump from upstream
+  * made distribution independent
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 17 Oct 2009 18:58:19 +0000
+
+ejabberd-mod-admin-extra (873-1) unstable; urgency=low
+
+  * initial version
+
+ -- Mathias Ertl <apt-repository@fsinf.at>  Sat, 14 Feb 2009 22:27:28 +0100

@@ -1,0 +1,39 @@
+#!/usr/bin/make -f
+
+BIN_PACKAGES=$(shell grep ^Package: debian/control  | sed 's/^Package: //')
+
+ejabberd-mod-admin-extra_BUILD_PATH=mod_admin_extra/trunk/
+ejabberd-mod-archive_BUILD_PATH=mod_archive/trunk/
+ejabberd-mod-atom-pubsub_BUILD_PATH=atom_pubsub/trunk/
+ejabberd-mod-cron_BUILD_PATH=mod_cron/trunk/
+ejabberd-mod-ircd_BUILD_PATH=ircd/trunk/
+ejabberd-mod-log-chat_BUILD_PATH=mod_log_chat/trunk/
+ejabberd-mod-logxml_BUILD_PATH=mod_logxml/trunk/
+ejabberd-mod-muc-admin_BUILD_PATH=mod_muc_admin/trunk/
+ejabberd-mod-muc-log-http_BUILD_PATH=mod_muc_log_http/trunk/
+ejabberd-mod-profile_BUILD_PATH=mod_profile/trunk/
+ejabberd-mod-register-web_BUILD_PATH=mod_register_web/trunk/
+ejabberd-mod-rest_BUILD_PATH=mod_rest/trunk/
+ejabberd-mod-s2s-log_BUILD_PATH=mod_s2s_log/trunk/
+ejabberd-mod-statsdx_BUILD_PATH=mod_statsdx/trunk/
+ejabberd-mod-webpresence_BUILD_PATH=mod_webpresence/trunk/
+ejabberd-mod-xmlrpc_BUILD_PATH=ejabberd_xmlrpc/trunk/
+ejabberd-mysql_BUILD_PATH=mysql/trunk/
+ejabberd-pgsql_BUILD_PATH=pgsql/trunk/
+
+%:
+	dh $@
+
+build-ejabberd-mod-archive-%:
+	# ejabberd-mod-archive compiles all modules
+
+build-%:
+	cd ${$*_BUILD_PATH} && ./build.sh
+
+override_dh_auto_build: $(BIN_PACKAGES:%=build-%)
+
+override_dh_installinit:
+	debian/dh_moduleupdate $*
+	dh_installinit
+
+.PHONY: binary binary-arch binary-indep clean
