@@ -7,7 +7,6 @@ if [[ ! -d  $mod_dir ]]; then
 fi
 
 mods=$(cd debian/$1/usr/lib/ejabberd/ebin/; ls *.beam | sed 's/.beam$//')
-echo "$1: Modules: $mods"
 
 echo '
 # Automatically added by dh_moduleupdate
