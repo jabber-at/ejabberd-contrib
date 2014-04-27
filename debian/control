@@ -1,10 +1,12 @@
 Source: ejabberd-modules
 Section: net
 Priority: optional
-Maintainer: Mathias Ertl <apt-repository@fsinf.at>
+Maintainer: Mathias Ertl <mati@jabber.at>
 Build-Depends: erlang-base, erlang-tools, debhelper (>= 9)
 Standards-Version: 3.9.1
-Homepage: http://www.ejabberd.im/ejabberd-modules
+Homepage: http://www.ejabberd.im/ejabberd-contrib
+VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
+VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
 
 Package: ejabberd-mod-admin-extra
 Architecture: any
