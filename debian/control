@@ -181,14 +181,13 @@ Description: Log XMPP packets to XML file
 # to allow your users to view the MUC logs.  It is a small modification
 # of mod_http_fileserver, customized for log serving.
 
-Package: ejabberd-mod-profile
-Architecture: any
-Depends: ejabberd (>= 2.1.5), ${misc:Depends}
-Conflicts: ejabberd (<< 2.1.5)
-Homepage: http://www.ejabberd.im/mod_profile
-Description: User Profile (XEP-0154) in Mnesia table
- This module supports storing and retrieving a profile according to
- XEP-0154.  It does no validation of the data, but simply stores
- whatever XML the user sends in a Mnesia table.  The PEP parts of
- XEP-0154 are out of scope for this module.
-
+#Package: ejabberd-mod-profile
+#Architecture: any
+#Depends: ejabberd (>= 2.1.5), ${misc:Depends}
+#Conflicts: ejabberd (<< 2.1.5)
+#Homepage: http://www.ejabberd.im/mod_profile
+#Description: User Profile (XEP-0154) in Mnesia table
+# This module supports storing and retrieving a profile according to
+# XEP-0154.  It does no validation of the data, but simply stores
+# whatever XML the user sends in a Mnesia table.  The PEP parts of
+# XEP-0154 are out of scope for this module.

@@ -10,12 +10,13 @@ ejabberd-modules (1:20140427-1) unstable; urgency=low
   * Disable modules that currently do not compile:
     * ejabberd-mod-archive-odbc
     * ejabberd-mod-archive-webview
-    * ejabberd-mod-cron
-    * ejabberd-mod-register-web
     * ejabberd-mod-atom-pubsub
+    * ejabberd-mod-cron
     * ejabberd-mod-ircd
     * ejabberd-mod-log-chat
     * ejabberd-mod-muc-log-http
+    * ejabberd-mod-profile
+    * ejabberd-mod-register-web
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 26 Apr 2014 16:05:51 +0200
 
