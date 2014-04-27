@@ -1,1 +1,1 @@
-mod_logxml/trunk/ebin/* usr/lib/ejabberd/ebin
+mod_logxml/ebin/* usr/lib/ejabberd/ebin
