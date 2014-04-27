@@ -132,20 +132,20 @@ Description: HTTP interface to POST stanzas into ejabberd
 # interface.
 # Also gives access to tune, mood and geoloc nodes if they exist.
 
-Package: ejabberd-mod-ircd
-Architecture: any
-Depends: ejabberd (>= 2.1.5), ${misc:Depends}
-Conflicts: ejabberd (<< 2.1.5)
-Description: IRC-to-XMPP interface
- This is an IRC server frontend to ejabberd.  It supports a subset of
- the IRC protocol, allowing IRC users to use a subset of Jabber MUC
- functions.  Users log in with their username and password, just as if
- they were Jabber users.  Therefore, configuring the IRC interface to
- use an anonymous authentication backend is probably what users expect.
- Channel names are translated to MUC rooms on a particular MUC service.
- .
- The most obvious missing functions in this module are operator actions
- and a command to list channels.
+#Package: ejabberd-mod-ircd
+#Architecture: any
+#Depends: ejabberd (>= 2.1.5), ${misc:Depends}
+#Conflicts: ejabberd (<< 2.1.5)
+#Description: IRC-to-XMPP interface
+# This is an IRC server frontend to ejabberd.  It supports a subset of
+# the IRC protocol, allowing IRC users to use a subset of Jabber MUC
+# functions.  Users log in with their username and password, just as if
+# they were Jabber users.  Therefore, configuring the IRC interface to
+# use an anonymous authentication backend is probably what users expect.
+# Channel names are translated to MUC rooms on a particular MUC service.
+# .
+# The most obvious missing functions in this module are operator actions
+# and a command to list channels.
 
 Package: ejabberd-mod-log-chat
 Architecture: any
