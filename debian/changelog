@@ -5,8 +5,11 @@ ejabberd-modules (1:20140427-1) unstable; urgency=low
     commit numbers.
   * Remove package-specific changelogs.
   * Name mati@jabber.at as new maintainer address.
-  * Remove ejabberd-mod-xmlrpc, ejabberd-mysql and ejabberd-postgresql which
-    are now included in ejabberd.
+  * Disable modules that are now included in ejabberd:
+    * ejabberd-mod-xmlrpc
+    * ejabberd-mysql
+    * ejabberd-postgresql
+    * ejabberd-mod-register-web
   * Disable modules that currently do not compile:
     * ejabberd-mod-archive-odbc
     * ejabberd-mod-archive-webview
@@ -16,7 +19,6 @@ ejabberd-modules (1:20140427-1) unstable; urgency=low
     * ejabberd-mod-log-chat
     * ejabberd-mod-muc-log-http
     * ejabberd-mod-profile
-    * ejabberd-mod-register-web
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 26 Apr 2014 16:05:51 +0200
 
