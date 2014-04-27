@@ -103,13 +103,13 @@ Conflicts: ejabberd (<< 2.1.5)
 Description: mod-webpresence for ejabberd-2.0.x
  This module allows users to display their presence on the web
 
-Package: ejabberd-mod-cron
-Architecture: any
-Depends: ejabberd (>= 2.1.5), ${misc:Depends}
-Conflicts: ejabberd (<< 2.1.5)
-Description: execute scheduled commands
- This module allows advanced ejabberd administrators to schedule commands for
- periodic and automatic execution.
+#Package: ejabberd-mod-cron
+#Architecture: any
+#Depends: ejabberd (>= 2.1.5), ${misc:Depends}
+#Conflicts: ejabberd (<< 2.1.5)
+#Description: execute scheduled commands
+# This module allows advanced ejabberd administrators to schedule commands for
+# periodic and automatic execution.
 
 Package: ejabberd-mod-rest
 Architecture: any
