@@ -17,9 +17,6 @@ ejabberd-mod-rest_BUILD_PATH=mod_rest/trunk/
 ejabberd-mod-s2s-log_BUILD_PATH=mod_s2s_log/trunk/
 ejabberd-mod-statsdx_BUILD_PATH=mod_statsdx/trunk/
 ejabberd-mod-webpresence_BUILD_PATH=mod_webpresence/trunk/
-ejabberd-mod-xmlrpc_BUILD_PATH=ejabberd_xmlrpc/trunk/
-ejabberd-mysql_BUILD_PATH=mysql/trunk/
-ejabberd-pgsql_BUILD_PATH=pgsql/trunk/
 
 %:
 	dh $@

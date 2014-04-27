@@ -103,28 +103,6 @@ Conflicts: ejabberd (<< 2.1.5)
 Description: mod-webpresence for ejabberd-2.0.x
  This module allows users to display their presence on the web
 
-Package: ejabberd-mod-xmlrpc
-Architecture: any
-Depends: ejabberd (>= 2.1.5), erlang-xmlrpc, ${misc:Depends}
-Conflicts: ejabberd (<< 2.1.5)
-Description: xmlrpc interface for ejabberd
- This package gives you an xmlrpc interface for ejabberd
-
-Package: ejabberd-mysql
-Architecture: any
-Depends: ejabberd, mysql-server, ${misc:Depends}
-Recommends: ejabberd-mod-admin-extra
-Conflicts: ejabberd (<< 2.1.5)
-Description: MySQL support for ejabberd
- This package allows you to use MySQL as a database backend
-
-Package: ejabberd-pgsql
-Architecture: any
-Depends: ejabberd, postgresql, ${misc:Depends}
-Conflicts: ejabberd (<< 2.1.5)
-Description: PostgreSQL support for ejabberd
- This package allows you to use PostgreSQL as a database backend
-
 Package: ejabberd-mod-cron
 Architecture: any
 Depends: ejabberd (>= 2.1.5), ${misc:Depends}
