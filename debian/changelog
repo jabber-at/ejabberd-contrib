@@ -1,6 +1,5 @@
 ejabberd-modules (1:20140427-1) unstable; urgency=low
 
-  * Use mati@jabber.at as maintainer address, so this is technically a NMU.
   * Move to new upstream git repository for sources.
   * Use a new dateb-based versioning scheme, since git doesn't have increasing
     commit numbers.
