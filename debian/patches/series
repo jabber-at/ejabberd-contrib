@@ -2,3 +2,5 @@ mod_profile.patch
 mod_archive.patch
 mod_cron.patch
 atom_pubsub.patch
+ircd.patch
+mod_muc_log_http
