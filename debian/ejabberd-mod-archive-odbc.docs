@@ -1,3 +1,2 @@
 mod_archive/README.txt
-mod_archive/src/mod_archive_odbc_pgsql.sql
-mod_archive/src/mod_archive_odbc_sqlite3.sql
+mod_archive/src/mod_archive_odbc_*.sql

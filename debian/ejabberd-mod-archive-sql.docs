@@ -1,2 +1,2 @@
 mod_archive/README.txt
-mod_archive/src/mod_archive_odbc_mysql.sql
+mod_archive/src/pg_mod_archive.sql
