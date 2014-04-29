@@ -26,3 +26,8 @@
  -export([process/2]).
   
  process([Domain,User|_]=LocalPath,  #request{auth = Auth} = Request)->
+--- /dev/null
++++ b/atom_pubsub/ebin/.keepme
+@@ -0,0 +1,2 @@
++!.keepme
++*
