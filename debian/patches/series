@@ -4,4 +4,3 @@ mod_cron.patch
 atom_pubsub.patch
 ircd.patch
 mod_muc_log_http
-mod_log_chat.patch
