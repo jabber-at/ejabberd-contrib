@@ -3,7 +3,7 @@ ejabberd-modules (1:20140614-1) unstable; urgency=low
   * Import upstream changes (fixes a few mod_admin_extra commands).
   * ejabberdctl is now called as ejabberd-user in postinst.
 
- -- Mathias Ertl <mati@jabber.at>  Sat, 31 May 2014 12:20:21 +0200
+ -- Mathias Ertl <mati@jabber.at>  Sat, 14 Jun 2014 14:04:47 +0200
 
 ejabberd-modules (1:20140531-1) unstable; urgency=low
 
