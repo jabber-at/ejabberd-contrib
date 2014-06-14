@@ -10,7 +10,7 @@ mods=$(cd debian/$1/usr/lib/ejabberd/ebin/; ls *.beam | sed 's/.beam$//')
 
 echo '
 # Automatically added by dh_moduleupdate
-ejabberdctl=su - ejabberd /usr/sbin/ejabberdctl
+ejabberdctl="su - ejabberd /usr/sbin/ejabberdctl"
 mods="'$mods'"
 
 if [ "$1" = "configure" ]; then
