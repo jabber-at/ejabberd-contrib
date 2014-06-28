@@ -26,7 +26,7 @@ if [ "$1" = "configure" ]; then
 			$ejabberdctl update $mod > /dev/null || { echo "failed"; continue; }
 			echo "ok"
 		else
-			echo "$mod is not enabled in your ejabberd installation."
+			echo "$mod is not enabled or has no update."
 		fi
 	done
 fi
