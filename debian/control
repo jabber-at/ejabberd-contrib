@@ -152,6 +152,18 @@ Description: Log chat messages to text or html
  .
  It can store messages in plain text or HTML format.
 
+Package: ejabberd-mod-logsession
+Architecture: any
+Depends: ejabberd (>= 1:14.05), ${misc:Depends}
+Conflicts: ejabberd (<< 1:14.05)
+Homepage: http://www.ejabberd.im/mod_logsession
+Description: Log session connections to file
+ This module is intended to log in a text file the session connections.
+ Right now it only logs the forbidden connection attempts and the
+ failed authentication attempts.
+ .
+ Each vhost is logged in a different file.
+
 Package: ejabberd-mod-logxml
 Architecture: any
 Depends: ejabberd (>= 1:14.05), ${misc:Depends}
