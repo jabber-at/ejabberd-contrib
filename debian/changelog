@@ -4,7 +4,7 @@ ejabberd-modules (1:20140623-2) unstable; urgency=low
   * Modules now depend on ejabberd 14.05.
   * New package: ejabberd-mod-logsession.
 
- -- Mathias Ertl <mati@jabber.at>  Sat, 14 Jun 2014 20:58:55 +0200
+ -- Mathias Ertl <mati@jabber.at>  Sat, 28 Jun 2014 12:37:33 +0200
 
 ejabberd-modules (1:20140614-2) unstable; urgency=low
 
