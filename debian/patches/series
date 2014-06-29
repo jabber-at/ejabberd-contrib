@@ -4,3 +4,4 @@ mod_cron.patch
 atom_pubsub.patch
 ircd.patch
 mod_muc_log_http
+use_lager.patch

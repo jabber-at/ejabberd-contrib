@@ -1,3 +1,9 @@
+ejabberd-modules (1:20140623-3) unstable; urgency=low
+
+  * Attempt to build mod_webpresence with lager support.
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 28 Jun 2014 12:37:33 +0200
+
 ejabberd-modules (1:20140623-2) unstable; urgency=low
 
   * Clearer message when upgrading, modules might not need an update.

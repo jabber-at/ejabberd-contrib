@@ -1,0 +1,18 @@
+--- a/ejabberd-dev/include/logger.hrl
++++ b/ejabberd-dev/include/logger.hrl
+@@ -21,7 +21,8 @@
+ -define(PRINT(Format, Args), io:format(Format, Args)).
+ 
+ -ifdef(LAGER).
+--compile([{parse_transform, lager_transform}]).
++%% provided by ejabberd:
++%%-compile([{parse_transform, lager_transform}]).
+ 
+ -define(DEBUG(Format, Args),
+ 	lager:debug(Format, Args)).
+--- a/mod_webpresence/Emakefile
++++ b/mod_webpresence/Emakefile
+@@ -1,2 +1,2 @@
+-{'../ejabberd-dev/src/gen_mod', [{outdir, "../ejabberd-dev/ebin"},{i,"../ejabberd-dev/include"}]}.
++{'../ejabberd-dev/src/gen_mod', [{outdir, "../ejabberd-dev/ebin"},{i,"../ejabberd-dev/include"}, {d, 'LAGER'}]}.
+ {'src/mod_webpresence',     [{outdir, "ebin"},{i,"../ejabberd-dev/include"}]}.
