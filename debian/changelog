@@ -5,7 +5,7 @@ ejabberd-modules (1:20140710-3) unstable; urgency=low
   * Remove include paches applied upstream.
   * Remove ejabberd-dev/ebin/*.beam before each build.sh invocation.
 
- -- Mathias Ertl <mati@jabber.at>  Sat, 28 Jun 2014 12:37:33 +0200
+ -- Mathias Ertl <mati@jabber.at>  Fri, 11 Jul 2014 14:31:16 +0200
 
 ejabberd-modules (1:20140623-2) unstable; urgency=low
 
