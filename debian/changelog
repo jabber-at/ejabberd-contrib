@@ -2,6 +2,7 @@ ejabberd-modules (1:20140710-3) unstable; urgency=low
 
   * Version bump from upstream.
   * Build mod_webpresence with lager support.
+  * Remove include paches applied upstream.
   * Remove ejabberd-dev/ebin/*.beam before each build.sh invocation.
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 28 Jun 2014 12:37:33 +0200
