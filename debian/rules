@@ -27,6 +27,7 @@ build-ejabberd-mod-archive-%:
 	# ejabberd-mod-archive compiles all modules
 
 build-%:
+	rm ejabberd-dev/ebin/*.beam
 	cd ${$*_BUILD_PATH} && ./build.sh
 
 override_dh_installchangelogs:

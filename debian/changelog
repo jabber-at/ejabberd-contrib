@@ -1,6 +1,7 @@
 ejabberd-modules (1:20140623-3) unstable; urgency=low
 
-  * Attempt to build mod_webpresence with lager support.
+  * Build mod_webpresence with lager support.
+  * Remove ejabberd-dev/ebin/*.beam before each build.sh invocation.
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 28 Jun 2014 12:37:33 +0200
 
