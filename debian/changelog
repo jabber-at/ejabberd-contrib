@@ -1,3 +1,9 @@
+ejabberd-modules (1:20140729-3) unstable; urgency=low
+
+  * Version bump from upstream (fix mod_muc_admin).
+
+ -- Mathias Ertl <mati@jabber.at>  Tue, 29 Jul 2014 14:01:11 +0200
+
 ejabberd-modules (1:20140710-3) unstable; urgency=low
 
   * Version bump from upstream.
