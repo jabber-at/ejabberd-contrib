@@ -1,6 +1,0 @@
-ejabberd-modules (1:20140904-1) unstable; urgency=low
-
-  * mod_muc_admin: Fix muc_online_rooms global:
-    https://github.com/processone/ejabberd-contrib/pull/46
-
- -- Mathias Ertl <mati@jabber.at>  Thu, 04 Sep 2014 12:31:32 +0200
