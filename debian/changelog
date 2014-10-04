@@ -1,4 +1,4 @@
-ejabberd-modules (1:20141004-1) unstable; urgency=low
+ejabberd-modules (1:20140904-2) unstable; urgency=low
 
   * mod_webpresence: Support @HOST@ in baseurl value, from:
     https://github.com/processone/ejabberd-contrib/pull/50
