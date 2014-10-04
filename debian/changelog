@@ -1,3 +1,10 @@
+ejabberd-modules (1:20141004-1) unstable; urgency=low
+
+  * mod_webpresence: Support @HOST@ in baseurl value, from:
+    https://github.com/processone/ejabberd-contrib/pull/50
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 04 Oct 2014 11:00:43 +0200
+
 ejabberd-modules (1:20140904-1) unstable; urgency=low
 
   * mod_muc_admin: Fix muc_online_rooms global:
