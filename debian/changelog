@@ -1,3 +1,15 @@
+ejabberd-modules (1:20141114-1) unstable; urgency=low
+
+  * Version bump from upstream
+    * Update mod_multicast
+    * Update core and header files from ejabberd
+    * mod_message_log: Ignore "empty" carbon copies
+    * Remove mod_irc, it's included with ejabberd now.
+    * mod_webpresence: Support @HOST@ in 'baseurl' value (previous patch now
+      applied upstream)
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 04 Oct 2014 11:00:43 +0200
+
 ejabberd-modules (1:20140904-2) unstable; urgency=low
 
   * mod_webpresence: Support @HOST@ in baseurl value, from:
