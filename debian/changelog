@@ -1,3 +1,11 @@
+ejabberd-modules (1:20141114-2) unstable; urgency=low
+
+  * Add revert_update_ejabberd_http_header.patch which reverts
+    34b28d46897f475753ee5726205094cdd42acc22. With this commit, some modules
+    don't work with ejabberd-14.07.
+
+ -- Mathias Ertl <mati@jabber.at>  Mon, 17 Nov 2014 13:19:20 +0100
+
 ejabberd-modules (1:20141114-1) unstable; urgency=low
 
   * Version bump from upstream
