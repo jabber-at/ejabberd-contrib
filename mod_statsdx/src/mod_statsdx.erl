@@ -221,7 +221,7 @@ remove_user(_User, Server) ->
 
 user_send_packet(FromJID, ToJID, NewEl) ->
     %% Registrarse para tramitar Host/mod_stats2file
-    case list_to_atom(ToJID#jid.lresource) of
+    case list_to_atom(binary_to_list(ToJID#jid.lresource)) of
 	?MODULE -> received_response(FromJID, ToJID, NewEl);
 	_ -> ok
     end.
@@ -230,7 +230,7 @@ user_send_packet_traffic(FromJID, ToJID, NewEl) ->
     %% Only required for traffic stats
     Host = FromJID#jid.lserver,
     HostTo = ToJID#jid.lserver,
-    {xmlelement, Type, _, _} = NewEl,
+    {xmlel, Type, _, _} = NewEl,
     Type2 = case Type of
     		"iq" -> iq;
     		"message" -> message;
@@ -247,7 +247,7 @@ user_send_packet_traffic(FromJID, ToJID, NewEl) ->
 user_receive_packet_traffic(_JID, From, To, FixedPacket) ->
     HostFrom = From#jid.lserver,
     Host = To#jid.lserver,
-    {xmlelement, Type, _, _} = FixedPacket,
+    {xmlel, Type, _, _} = FixedPacket,
     Type2 = case Type of
 		"iq" -> iq;
 		"message" -> message;
@@ -618,7 +618,9 @@ get_s2sconnections(Host) ->
 %%    {Host, Res} = ets:foldl(F2, {Host, 0}, irc_connection),
 %%	Res.
 
-is_host(Host, Subhost) ->
+is_host(HostBin, SubhostBin) ->
+    Host = binary_to_list(HostBin),
+    Subhost = binary_to_list(SubhostBin),
     Pos = string:len(Host)-string:len(Subhost)+1,
     case string:rstr(Host, Subhost) of
 	Pos -> true;
@@ -763,15 +765,15 @@ user_logout(User, Host, Resource, _Status) ->
     end.
 
 request_iqversion(User, Host, Resource) ->
-    From = jlib:make_jid("", Host, atom_to_list(?MODULE)),
+    From = jlib:make_jid(<<"">>, Host, list_to_binary(atom_to_list(?MODULE))),
     FromStr = jlib:jid_to_string(From),
     To = jlib:make_jid(User, Host, Resource),
     ToStr = jlib:jid_to_string(To),
-    Packet = {xmlelement,"iq",
-	      [{"from",FromStr}, {"to",ToStr}, {"type","get"},
-		{"id", "statsdx" ++ randoms:get_string()}],
-	      [{xmlelement, "query",
-		[{"xmlns","jabber:iq:version"}], []}]},
+    Packet = {xmlel,<<"iq">>,
+	      [{<<"from">>,FromStr}, {<<"to">>,ToStr}, {<<"type">>,<<"get">>},
+		{<<"id">>, list_to_binary("statsdx"++randoms:get_string())}],
+	      [{xmlel, <<"query">>,
+		[{<<"xmlns">>,<<"jabber:iq:version">>}], []}]},
     ejabberd_local:route(From, To, Packet).
 
 %% cuando el virtualJID recibe una respuesta iqversion,
@@ -781,15 +783,15 @@ received_response(From, _To, El) ->
     catch
     	_:_ -> ok
     end.
-received_response(From, {xmlelement, "iq", Attrs, Elc}) ->
+received_response(From, {xmlel, <<"iq">>, Attrs, Elc}) ->
     User = From#jid.luser,
     Host = From#jid.lserver,
     Resource = From#jid.lresource,
 
-    "result" = xml:get_attr_s("type", Attrs),
-    Lang = case xml:get_attr_s("xml:lang", Attrs) of
+    <<"result">> = xml:get_attr_s(<<"type">>, Attrs),
+    Lang = case xml:get_attr_s(<<"xml:lang">>, Attrs) of
 	       [] -> "unknown";
-	       L -> L
+	       L -> binary_to_list(L)
 	   end,
     TableHost = table_name(Host),
     TableServer = table_name("server"),
@@ -797,11 +799,11 @@ received_response(From, {xmlelement, "iq", Attrs, Elc}) ->
     update_counter_create(TableServer, {lang, server, Lang}, 1),
 
     [El] = xml:remove_cdata(Elc),
-    {xmlelement, _, Attrs2, _Els2} = El,
-    ?NS_VERSION = xml:get_attr_s("xmlns", Attrs2),
+    {xmlel, _, Attrs2, _Els2} = El,
+    ?NS_VERSION = xml:get_attr_s(<<"xmlns">>, Attrs2),
 
-    Client = get_tag_cdata_subtag(El, "name"),
-    Version = get_tag_cdata_subtag(El, "version"),
+    Client = get_tag_cdata_subtag(El, <<"name">>),
+    Version = get_tag_cdata_subtag(El, <<"version">>),
     OS = get_tag_cdata_subtag(El, "os"),
     {Client_id, OS_id} = identify(Client, OS),
 
@@ -836,8 +838,8 @@ update_counter_create(Table, Element, C) ->
 get_tag_cdata_subtag(E, T) ->
     E2 = xml:get_subtag(E, T),
     case E2 of
-	false -> <<"unknown">>;
-	_ -> xml:get_tag_cdata(E2)
+	false -> "unknown";
+	_ -> binary_to_list(xml:get_tag_cdata(E2))
     end.
 
 list_elem(Type, id) ->
@@ -913,7 +915,7 @@ get_client_os(Server) ->
     CO1 = ets:match(table_name(Server), {{client_os, Server, '$1', '$2'}, '$3'}),
     CO2 = lists:map(
 	    fun([Cl, Os, A3]) ->
-		    {list_to_binary(lists:flatten([atom_to_list(Cl), "/", atom_to_list(Os)])), A3}
+		    {lists:flatten([atom_to_list(Cl), "/", atom_to_list(Os)]), A3}
 	    end,
 	    CO1
 	   ),
@@ -923,7 +925,7 @@ get_client_conntype(Server) ->
     CO1 = ets:match(table_name(Server), {{client_conntype, Server, '$1', '$2'}, '$3'}),
     CO2 = lists:map(
 	    fun([Cl, Os, A3]) ->
-		    {list_to_binary(lists:flatten([atom_to_list(Cl), "/", atom_to_list(Os)])), A3}
+		    {lists:flatten([atom_to_list(Cl), "/", atom_to_list(Os)]), A3}
 	    end,
 	    CO1
 	   ),
@@ -1503,15 +1505,16 @@ do_sessions_table(_Node, _Lang, Filter, {Sort_direction, Sort_column}, Host) ->
     Sessions = get_sessions_filtered(Filter, Host),
     SessionsSorted = sort_sessions(Sort_direction, Sort_column, Sessions),
     lists:map(
-      fun( {{session, JID}, Client_id, OS_id, Lang, ConnType, Client, Version, OS} ) ->
-	      User = JID#jid.luser,
-	      Server = JID#jid.lserver,
+      fun( {{session, JID}, Client_id, OS_id, LangS, ConnType, Client, Version, OS} ) ->
+	      Lang = list_to_binary(LangS),
+	      User = binary_to_list(JID#jid.luser),
+	      Server = binary_to_list(JID#jid.lserver),
 	      UserURL = "/admin/server/" ++ Server ++ "/user/" ++ User ++ "/",
 	      ?XE("tr", [
-			 ?XE(<<"td">>, [?AC(UserURL, jlib:jid_to_string(JID))]),
+			 ?XE(<<"td">>, [?AC(list_to_binary(UserURL), jlib:jid_to_string(JID))]),
 			 ?XCTB("td", atom_to_list(Client_id)),
 			 ?XCTB("td", atom_to_list(OS_id)),
-			 ?XCTB("td", Lang),
+			 ?XCTB("td", LangS),
 			 ?XCTB("td", atom_to_list(ConnType)),
 			 ?XCTB("td", Client),
 			 ?XCTB("td", Version),
@@ -1542,12 +1545,12 @@ get_sessions_filtered(Filter, server) ->
       ?MYHOSTS);
 get_sessions_filtered(Filter, Host) ->
     Match = case Filter of
-		[{"client", Client}] -> {{session, '$1'}, list_to_atom(Client), '$2', '$3', '$4', '$5', '$6', '$7'};
-		[{"os", OS}] -> {{session, '$1'}, '$2', list_to_atom(OS), '$3', '$4', '$5', '$6', '$7'};
-		[{"conntype", ConnType}] -> {{session, '$1'}, '$2', '$3', '$4', list_to_atom(ConnType), '$5', '$6', '$7'};
-		[{"languages", Lang}] -> {{session, '$1'}, '$2', '$3', Lang, '$4', '$5', '$6', '$7'};
-		[{"client", Client}, {"os", OS}] -> {{session, '$1'}, list_to_atom(Client), list_to_atom(OS), '$3', '$4', '$5', '$6', '$7'};
-		[{"client", Client}, {"conntype", ConnType}] -> {{session, '$1'}, list_to_atom(Client), '$2', '$3', list_to_atom(ConnType), '$5', '$6', '$7'};
+		[{<<"client">>, Client}] -> {{session, '$1'}, list_to_atom(binary_to_list(Client)), '$2', '$3', '$4', '$5', '$6', '$7'};
+		[{<<"os">>, OS}] -> {{session, '$1'}, '$2', list_to_atom(binary_to_list(OS)), '$3', '$4', '$5', '$6', '$7'};
+		[{<<"conntype">>, ConnType}] -> {{session, '$1'}, '$2', '$3', '$4', list_to_atom(binary_to_list(ConnType)), '$5', '$6', '$7'};
+		[{<<"languages">>, Lang}] -> {{session, '$1'}, '$2', '$3', binary_to_list(Lang), '$4', '$5', '$6', '$7'};
+		[{<<"client">>, Client}, {<<"os">>, OS}] -> {{session, '$1'}, list_to_atom(binary_to_list(Client)), list_to_atom(binary_to_list(OS)), '$3', '$4', '$5', '$6', '$7'};
+		[{<<"client">>, Client}, {<<"conntype">>, ConnType}] -> {{session, '$1'}, list_to_atom(binary_to_list(Client)), '$2', '$3', list_to_atom(binary_to_list(ConnType)), '$5', '$6', '$7'};
 		_ -> {{session, '$1'}, '$2', '$3', '$4', '$5'}
 	    end,
     ets:match_object(table_name(Host), Match).
