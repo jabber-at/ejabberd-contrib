@@ -1,3 +1,10 @@
+ejabberd-modules (1:20141219-2) unstable; urgency=low
+
+  * Import version 20141219.
+  * This version brings fixes for mod_statsdx.
+
+ -- Mathias Ertl <mati@jabber.at>  Mon, 22 Dec 2014 12:56:43 +0100
+
 ejabberd-modules (1:20141114-2) unstable; urgency=low
 
   * Add revert_update_ejabberd_http_header.patch which reverts
