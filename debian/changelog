@@ -1,3 +1,11 @@
+ejabberd-modules (1:20141219-3) unstable; urgency=low
+
+  * Add binary-params.patch, correctly setting some binary parameters.
+  * Add mod_admin_extra_setlast.patch, fixing the set_last command and getting
+    rid of the last traces of mod_last_odbc.
+
+ -- Mathias Ertl <mati@jabber.at>  Thu, 25 Dec 2014 12:33:27 +0100
+
 ejabberd-modules (1:20141219-2) unstable; urgency=low
 
   * Import version 20141219.
