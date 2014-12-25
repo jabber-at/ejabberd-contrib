@@ -1,2 +1,3 @@
 use_lager.patch
 revert_update_ejabberd_http_header.patch
+binary-params.patch
