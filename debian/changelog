@@ -1,3 +1,9 @@
+ejabberd-modules (1:20141219-4) unstable; urgency=low
+
+  * Remove revert_update_ejabberd_http_header.patch.
+
+ -- Mathias Ertl <mati@jabber.at>  Mon, 29 Dec 2014 22:45:31 +0100
+
 ejabberd-modules (1:20141219-3) unstable; urgency=low
 
   * Add binary-params.patch, correctly setting some binary parameters.
