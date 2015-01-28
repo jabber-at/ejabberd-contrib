@@ -1,3 +1,13 @@
+ejabberd-modules (1:20150128-1) unstable; urgency=low
+
+  * mod_message_log: 
+    * Run as a supervised gen_server
+    * Add function specifications
+  * mod_admin_extra: fix stats command
+  * mod_cron: Fix to work with ejabberd git master
+
+ -- Mathias Ertl <mati@jabber.at>  Wed, 28 Jan 2015 15:32:15 +0100
+
 ejabberd-modules (1:20141219-4) unstable; urgency=low
 
   * Remove revert_update_ejabberd_http_header.patch.
