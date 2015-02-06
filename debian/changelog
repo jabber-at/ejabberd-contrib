@@ -1,5 +1,15 @@
 ejabberd-modules (1:20150128-1) unstable; urgency=low
 
+  * Add mod_mam (for XEP-0313, Message Archive Management).
+  * Fix mod_muc_log_http, mod_logxml and mod_shcommands to work with ejabberd
+    master.
+  * Remove mod_ctlextra (deprecated by mod_admin_extra).
+  * Remove mod_register_web (included in master).
+
+ -- Mathias Ertl <mati@jabber.at>  Wed, 28 Jan 2015 15:32:15 +0100
+
+ejabberd-modules (1:20150128-1) unstable; urgency=low
+
   * mod_message_log: 
     * Run as a supervised gen_server
     * Add function specifications
