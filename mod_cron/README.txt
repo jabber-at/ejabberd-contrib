@@ -3,7 +3,7 @@
 
 	http://www.ejabberd.im/mod_cron
 	Author: Badlop
-	Requirements: ejabberd trunk SVN 1635 or newer
+	Requirements: ejabberd git master
 
 
 This module allows advanced ejabberd administrators to schedule commands for
@@ -19,54 +19,46 @@ ejabberd log file.
 	BASIC CONFIGURATION
 	===================
 
-Add the module to your ejabberd.cfg, on the modules section:
-{modules, [
-  ...
-  {mod_cron, []},
-  ...
-]}.
+Add the module to your ejabberd.yml, on the modules section:
+modules:
+  mod_cron: {}
 
 
 	TASK SYNTAX
 	===========
 
-Each task is described using a tuple with this syntax:
-  {Time, Time_units, Module, Function, Arguments}
-Where:
-  Time is an integer.
-  Time_units indicates the time unit you use. It can be: seconds, minutes, hours, days.
-  Module and Function are the exact call you want to schedule.
-  Arguments is a list of arguments. It can be emtpy.
-
-For example, let's define some dummy tasks:
- * Every 3 hours, print on the log file some info about mnesia:
-    {3, hours, mnesia, info, []}
-
- * Every day, try to register certain account:
-    {1, days, ejabberd_auth, try_register, ["tommy", "jabber.example.org", "MyP455WorD"]}
+Each task is described with five elements:
+* Time is an integer.
+* Units indicates the time unit you use. It can be: seconds, minutes, hours, days.
+* Module and * Function are the exact call you want to schedule.
+* Arguments is an erlang list of arguments inside the characters "> ."
 
 
-	TASKS ON EJABBERD.CFG
-	=====================
+	EXAMPLE TASKS
+	=============
 
-Now that you know how to define new tasks, you can add the ones you want on ejabberd.cfg
-For example:
-{modules, [
-  ...
-  {mod_cron, [{tasks, [
-    {3, hours, mnesia, info, []},
-    {1, days, ejabberd_auth, try_register, ["aaa", "atenea", "aaaaaa"]}
-  ]}]},
-  ...
-]}.
+Example configuration with some tasks:
+modules:
+  mod_cron:
+    tasks:
+      - time: 3
+        units: hours
+        module: mnesia
+        function: info
+        arguments: "> []."
+      - time: 10
+        units: seconds
+        module: ejabberd_auth
+        function: try_register
+        arguments: "> [\"user1\", \"localhost\", \"somepass\"]."
 
 
 	EJABBERD COMMANDS
 	=================
 
 This module provides two new commands that can be executed using ejabberdctl:
- * cron-list: list scheduled tasks
- * cron-del taskid: delete this task from the schedule
+* cron_list: list scheduled tasks
+* cron_del taskid: delete this task from the schedule
 
 
 	WEB ADMIN
