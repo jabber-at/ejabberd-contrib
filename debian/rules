@@ -19,6 +19,7 @@ ejabberd-mod-statsdx_BUILD_PATH=mod_statsdx/
 ejabberd-mod-webpresence_BUILD_PATH=mod_webpresence/
 ejabberd-mod-multicast_BUILD_PATH=mod_multicast/
 ejabberd-mod-logsession_BUILD_PATH=mod_logsession/
+ejabberd-mod-mam_BUILD_PATH=mod_mam/
 
 %:
 	dh $@
