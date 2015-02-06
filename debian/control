@@ -194,7 +194,7 @@ Description: Extended Stanza Addressing (XEP-0033) support
 Package: ejabberd-mod-mam
 Architecture: any
 Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Homepage: http://www.ejabberd.im/mod_profile
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
 Description: Message Archive Management (XEP-0313) support
  This module implements Message Archive Management (XEP-0313) support.
  .
