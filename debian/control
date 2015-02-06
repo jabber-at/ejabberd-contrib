@@ -208,3 +208,12 @@ Description: Extended Stanza Addressing (XEP-0033) support
  .
  The development of this module is included on a Google Summer of Code 2007
  project.
+
+Package: ejabberd-mod-mam
+Architecture: any
+Depends: ejabberd (>= 1:14.12), ${misc:Depends}
+Homepage: http://www.ejabberd.im/mod_profile
+Description: Message Archive Management (XEP-0313) support
+ This module implements Message Archive Management (XEP-0313) support.
+ .
+ XEP-0313 allows server-side storage of messages.
