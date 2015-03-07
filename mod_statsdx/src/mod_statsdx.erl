@@ -45,7 +45,10 @@
 %%%% Module control
 
 start(Host, Opts) ->
-    Hooks = gen_mod:get_opt(hooks, Opts, fun(O) -> is_atom(O) end, false),
+    Hooks = gen_mod:get_opt(hooks, Opts,
+			    fun(O) when is_boolean(O) -> O;
+			       (traffic) -> traffic
+			    end, false),
     %% Default value for the counters
     CD = case Hooks of
 	     true -> 0;
@@ -221,7 +224,7 @@ remove_user(_User, Server) ->
 
 user_send_packet(FromJID, ToJID, NewEl) ->
     %% Registrarse para tramitar Host/mod_stats2file
-    case list_to_atom(binary_to_list(ToJID#jid.lresource)) of
+    case catch binary_to_existing_atom(ToJID#jid.lresource, utf8) of
 	?MODULE -> received_response(FromJID, ToJID, NewEl);
 	_ -> ok
     end.
@@ -232,9 +235,9 @@ user_send_packet_traffic(FromJID, ToJID, NewEl) ->
     HostTo = ToJID#jid.lserver,
     {xmlel, Type, _, _} = NewEl,
     Type2 = case Type of
-    		"iq" -> iq;
-    		"message" -> message;
-    		"presence" -> presence
+    		<<"iq">> -> iq;
+    		<<"message">> -> message;
+    		<<"presence">> -> presence
     	    end,
     Dest = case is_host(HostTo, Host) of
     	       true -> in;
@@ -249,9 +252,9 @@ user_receive_packet_traffic(_JID, From, To, FixedPacket) ->
     Host = To#jid.lserver,
     {xmlel, Type, _, _} = FixedPacket,
     Type2 = case Type of
-		"iq" -> iq;
-		"message" -> message;
-		"presence" -> presence
+		<<"iq">> -> iq;
+		<<"message">> -> message;
+		<<"presence">> -> presence
 	    end,
     Dest = case is_host(HostFrom, Host) of
 	       true -> in;
@@ -619,11 +622,8 @@ get_s2sconnections(Host) ->
 %%	Res.
 
 is_host(HostBin, SubhostBin) ->
-    Host = binary_to_list(HostBin),
-    Subhost = binary_to_list(SubhostBin),
-    Pos = string:len(Host)-string:len(Subhost)+1,
-    case string:rstr(Host, Subhost) of
-	Pos -> true;
+    case catch binary:split(HostBin, SubhostBin) of
+	[_Sub, <<"">>] -> true;
 	_ -> false
     end.
 
@@ -790,7 +790,7 @@ received_response(From, {xmlel, <<"iq">>, Attrs, Elc}) ->
 
     <<"result">> = xml:get_attr_s(<<"type">>, Attrs),
     Lang = case xml:get_attr_s(<<"xml:lang">>, Attrs) of
-	       [] -> "unknown";
+	       <<"">> -> "unknown";
 	       L -> binary_to_list(L)
 	   end,
     TableHost = table_name(Host),
@@ -804,7 +804,7 @@ received_response(From, {xmlel, <<"iq">>, Attrs, Elc}) ->
 
     Client = get_tag_cdata_subtag(El, <<"name">>),
     Version = get_tag_cdata_subtag(El, <<"version">>),
-    OS = get_tag_cdata_subtag(El, "os"),
+    OS = get_tag_cdata_subtag(El, <<"os">>),
     {Client_id, OS_id} = identify(Client, OS),
 
     ConnType = get_connection_type(User, Host, Resource),
@@ -855,6 +855,7 @@ list_elem(clients, full) ->
      {"Psi", psi},
      {"Adium", adium},
      {"Pandion", pandion},
+     {"Instantbird", instantbird},
      {"Telepathy Gabble", 'telepathy-gabble'},
      {"Swift", swift},
      {"Kopete", kopete},
@@ -862,6 +863,7 @@ list_elem(clients, full) ->
      {"libgaim", libgaim},
      {"JBother", jbother},
      {"iChat", ichat},
+     {"imagent", messages},
      {"Miranda", miranda},
      {"Trillian", trillian},
      {"QIP Infium", qipinfium},
@@ -870,7 +872,12 @@ list_elem(clients, full) ->
      {"Gabber", gabber},
      {"BitlBee", bitlbee},
      {"jabber.el", jabberel},
+     {"mcabber", mcabber},
+     {"poezio", poezio},
+     {"Profanity", profanity},
      {"centerim", centerim},
+     {"Conversations", conversations},
+     {"yaxim", yaxim},
      {"unknown", unknown}
     ];
 list_elem(conntypes, full) ->
@@ -878,6 +885,7 @@ list_elem(conntypes, full) ->
      {"c2s", c2s},
      {"c2s_tls", c2s_tls},
      {"c2s_compressed", c2s_compressed},
+     {"c2s_compressed_tls", c2s_compressed_tls},
      {"http_poll", http_poll},
      {"http_bind", http_bind},
      {"unknown", unknown}
@@ -965,13 +973,13 @@ localtime_to_string({{Y, Mo, D},{H, Mi, S}}) ->
 %%%% Web Admin Menu
 
 web_menu_main(Acc, Lang) ->
-    Acc ++ [{<<"statsdx">>, ?T(<<"Statistics Dx">>)}].
+    Acc ++ [{<<"statsdx">>, <<(?T(<<"Statistics">>))/binary, " Dx">>}].
 
 web_menu_node(Acc, _Node, Lang) ->
-    Acc ++ [{<<"statsdx">>, ?T(<<"Statistics Dx">>)}].
+    Acc ++ [{<<"statsdx">>, <<(?T(<<"Statistics">>))/binary, " Dx">>}].
 
 web_menu_host(Acc, _Host, Lang) ->
-    Acc ++ [{<<"statsdx">>, ?T(<<"Statistics Dx">>)}].
+    Acc ++ [{<<"statsdx">>, <<(?T(<<"Statistics">>))/binary, " Dx">>}].
 
 %%%==================================
 %%%% Web Admin Page
@@ -1105,7 +1113,7 @@ web_page_main(_, #request{path=[<<"statsdx">> | FilterURL], q = Q, lang = Lang} 
     Filter = parse_url_filter(FilterURL),
     Sort_query = get_sort_query(Q),
     FilterS = io_lib:format("~p", [Filter]),
-    Res = [?XC(<<"h1">>, list_to_binary(?T("Statistics") ++ " Dx222")),
+    Res = [?XC(<<"h1">>, <<(?T(<<"Statistics">>))/binary, " Dx">>),
 	   ?XC(<<"h2">>, list_to_binary("Sessions with: " ++ FilterS)),
 	   ?XE(<<"table">>,
 	       [
@@ -1117,7 +1125,7 @@ web_page_main(_, #request{path=[<<"statsdx">> | FilterURL], q = Q, lang = Lang} 
 web_page_main(Acc, _) -> Acc.
 
 do_top_table(_Node, Lang, Topic, TopnumberBin, Host) ->
-    List = get_top_users(Host, list_to_integer(binary_to_list(TopnumberBin)), Topic),
+    List = get_top_users(Host, jlib:binary_to_integer(TopnumberBin), Topic),
     %% get_top_users(Topnumber, "roster")
     {List2, _} = lists:mapfoldl(
       fun({Value, UserB, ServerB}, Counter) ->
@@ -1427,7 +1435,7 @@ web_page_host(_, Host,
 	  ],
     {stop, Res};
 web_page_host(_, Host, #request{path=[<<"statsdx">>, <<"top">>, Topic, Topnumber], q = _Q, lang = Lang} = _Request) ->
-    Res = [?XC("h1", ?T("Statistics")++" Dx"),
+    Res = [?XC(<<"h1">>, <<(?T(<<"Statistics">>))/binary, " Dx">>),
 	   case Topic of
 		<<"offlinemsg">> -> ?XCT(<<"h2">>, <<"Top offline message queues">>);
 		<<"vcard">> -> ?XCT(<<"h2">>, <<"Top vCard sizes">>);
@@ -1447,10 +1455,10 @@ web_page_host(_, Host, #request{path=[<<"statsdx">> | FilterURL], q = Q,
 				lang = Lang} = _Request) ->
     Filter = parse_url_filter(FilterURL),
     Sort_query = get_sort_query(Q),
-    Res = [?XC("h1", ?T("Statistics")++" Dx"),
-	   ?XC("h2", "Sessions with: "++ io_lib:format("~p", [Filter])),
-	   ?XAE("table", [],
-		[?XE("tbody",
+    Res = [?XC(<<"h1">>, <<(?T(<<"Statistics">>))/binary, " Dx">>),
+	   ?XC(<<"h2">>, list_to_binary("Sessions with: "++io_lib:format("~p", [Filter]))),
+	   ?XAE(<<"table">>, [],
+		[?XE(<<"tbody">>,
 		     do_sessions_table(global, Lang, Filter, Sort_query, Host)
 		    )
 		])
@@ -1468,15 +1476,15 @@ do_table_element(Counter, Lang, L, StatLink, N) ->
     ?XE(<<"tr">>, [
 	       case Counter of
 		   no_counter -> ?C(<<"">>);
-		   _ -> ?XE(<<"td">>, [?C(integer_to_list(Counter))])
+		   _ -> ?XE(<<"td">>, [?C(list_to_binary(integer_to_list(Counter)))])
                end,
 	       case StatLink of
 		   no_link -> ?XCT(<<"td">>, L);
-		   {fixed_url, Fixedurl} -> ?XE(<<"td">>, [?AC(Fixedurl, L)]);
+		   {fixed_url, Fixedurl} -> ?XE(<<"td">>, [?AC(list_to_binary(Fixedurl), list_to_binary(L))]);
 		   _ -> ?XE(<<"td">>, [?AC(list_to_binary(make_url(StatLink, L)), list_to_binary(L))])
                end,
 	       case N of
-		   {url, NUrl, NName} -> ?XAE(<<"td">>, [{<<"class">>, <<"alignright">>}], [?AC(NUrl, NName)]);
+		   {url, NUrl, NName} -> ?XAE(<<"td">>, [{<<"class">>, <<"alignright">>}], [?AC(list_to_binary(NUrl), list_to_binary(NName))]);
 		   N when is_list(N) -> ?XAC(<<"td">>, [{<<"class">>, <<"alignright">>}], list_to_binary(N));
 		   _ -> ?XAC(<<"td">>, [{<<"class">>, <<"alignright">>}], N)
                end
@@ -1510,7 +1518,7 @@ do_sessions_table(_Node, _Lang, Filter, {Sort_direction, Sort_column}, Host) ->
 	      User = binary_to_list(JID#jid.luser),
 	      Server = binary_to_list(JID#jid.lserver),
 	      UserURL = "/admin/server/" ++ Server ++ "/user/" ++ User ++ "/",
-	      ?XE("tr", [
+	      ?XE(<<"tr">>, [
 			 ?XE(<<"td">>, [?AC(list_to_binary(UserURL), jlib:jid_to_string(JID))]),
 			 ?XCTB("td", atom_to_list(Client_id)),
 			 ?XCTB("td", atom_to_list(OS_id)),
@@ -1545,12 +1553,12 @@ get_sessions_filtered(Filter, server) ->
       ?MYHOSTS);
 get_sessions_filtered(Filter, Host) ->
     Match = case Filter of
-		[{<<"client">>, Client}] -> {{session, '$1'}, list_to_atom(binary_to_list(Client)), '$2', '$3', '$4', '$5', '$6', '$7'};
-		[{<<"os">>, OS}] -> {{session, '$1'}, '$2', list_to_atom(binary_to_list(OS)), '$3', '$4', '$5', '$6', '$7'};
-		[{<<"conntype">>, ConnType}] -> {{session, '$1'}, '$2', '$3', '$4', list_to_atom(binary_to_list(ConnType)), '$5', '$6', '$7'};
+		[{<<"client">>, Client}] -> {{session, '$1'}, jlib:binary_to_atom(Client), '$2', '$3', '$4', '$5', '$6', '$7'};
+		[{<<"os">>, OS}] -> {{session, '$1'}, '$2', jlib:binary_to_atom(OS), '$3', '$4', '$5', '$6', '$7'};
+		[{<<"conntype">>, ConnType}] -> {{session, '$1'}, '$2', '$3', '$4', jlib:binary_to_atom(ConnType), '$5', '$6', '$7'};
 		[{<<"languages">>, Lang}] -> {{session, '$1'}, '$2', '$3', binary_to_list(Lang), '$4', '$5', '$6', '$7'};
-		[{<<"client">>, Client}, {<<"os">>, OS}] -> {{session, '$1'}, list_to_atom(binary_to_list(Client)), list_to_atom(binary_to_list(OS)), '$3', '$4', '$5', '$6', '$7'};
-		[{<<"client">>, Client}, {<<"conntype">>, ConnType}] -> {{session, '$1'}, list_to_atom(binary_to_list(Client)), '$2', '$3', list_to_atom(binary_to_list(ConnType)), '$5', '$6', '$7'};
+		[{<<"client">>, Client}, {<<"os">>, OS}] -> {{session, '$1'}, jlib:binary_to_atom(Client), jlib:binary_to_atom(OS), '$3', '$4', '$5', '$6', '$7'};
+		[{<<"client">>, Client}, {<<"conntype">>, ConnType}] -> {{session, '$1'}, jlib:binary_to_atom(Client), '$2', '$3', jlib:binary_to_atom(ConnType), '$5', '$6', '$7'};
 		_ -> {{session, '$1'}, '$2', '$3', '$4', '$5'}
 	    end,
     ets:match_object(table_name(Host), Match).
@@ -1684,8 +1692,8 @@ get_users_vcard_fun(#vcard{us = {_, Host1}}, {HostReq, NumRemaining, MinSize, Si
     when (Host1 /= HostReq) and (HostReq /= server) ->
     {HostReq, NumRemaining, MinSize, Sizes, Selects};
 get_users_vcard_fun(Vcard, {HostReq, NumRemaining, MinSize, Sizes, Selects}) ->
-    String = lists:flatten(xml:element_to_string(Vcard#vcard.vcard)),
-    Size = length(String),
+    Binary = xml:element_to_binary(Vcard#vcard.vcard),
+    Size = byte_size(Binary),
     case {Size > MinSize, NumRemaining > 0} of
 	{true, true} ->
 	    {User, Host} = Vcard#vcard.us,

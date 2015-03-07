@@ -17,10 +17,9 @@
 %%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 %%% General Public License for more details.
 %%%
-%%% You should have received a copy of the GNU General Public License
-%%% along with this program; if not, write to the Free Software
-%%% Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-%%% 02111-1307 USA
+%%% You should have received a copy of the GNU General Public License along
+%%% with this program; if not, write to the Free Software Foundation, Inc.,
+%%% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 %%%
 %%%-------------------------------------------------------------------
 
@@ -28,6 +27,8 @@
 -author('badlop@process-one.net').
 
 -behaviour(gen_mod).
+
+-include("logger.hrl").
 
 -export([start/2, stop/1,
 	 %% Node
@@ -83,8 +84,7 @@
 	 srg_user_add/4,
 	 srg_user_del/4,
 	 %% Stanza
-	 send_message_headline/4,
-	 send_message_chat/3,
+	 send_message/5,
 	 send_stanza_c2s/4,
 	 privacy_set/3,
 	 %% Stats
@@ -129,6 +129,10 @@ commands() ->
 	" N MIDDLE	- Middle name\n"
 	" ADR CTRY	- Address: Country\n"
 	" ADR LOCALITY	- Address: City\n"
+	" TEL HOME      - Telephone: Home\n"
+	" TEL CELL      - Telephone: Cellphone\n"
+	" TEL WORK      - Telephone: Work\n"
+	" TEL VOICE     - Telephone: Voice\n"
 	" EMAIL USERID	- E-Mail Address\n"
 	" ORG ORGNAME	- Work: Company\n"
 	" ORG ORGUNIT	- Work: Department",
@@ -284,7 +288,7 @@ commands() ->
 			tags = [session],
 			desc = "Get information about all sessions of a user",
 			module = ?MODULE, function = user_sessions_info,
-			args = [{user, string}, {host, string}],
+			args = [{user, binary}, {host, binary}],
 			result = {sessions_info,
 				  {list,
 				   {session, {tuple,
@@ -455,12 +459,12 @@ commands() ->
      #ejabberd_commands{name = private_get, tags = [private],
 			desc = "Get some information from a user private storage",
 			module = ?MODULE, function = private_get,
-			args = [{user, string}, {host, string}, {element, string}, {ns, string}],
+			args = [{user, binary}, {host, binary}, {element, binary}, {ns, binary}],
 			result = {res, string}},
      #ejabberd_commands{name = private_set, tags = [private],
 			desc = "Set to the user private storage",
 			module = ?MODULE, function = private_set,
-			args = [{user, string}, {host, string}, {element, string}],
+			args = [{user, binary}, {host, binary}, {element, binary}],
 			result = {res, rescode}},
 
      #ejabberd_commands{name = srg_create, tags = [shared_roster_group],
@@ -507,15 +511,10 @@ commands() ->
 			args = [{user, binary}, {host, binary}, {group, binary}, {grouphost, binary}],
 			result = {res, rescode}},
 
-     #ejabberd_commands{name = send_message_chat, tags = [stanza],
-			desc = "Send a chat message to a local or remote bare of full JID",
-			module = ?MODULE, function = send_message_chat,
-			args = [{from, binary}, {to, binary}, {body, binary}],
-			result = {res, rescode}},
-     #ejabberd_commands{name = send_message_headline, tags = [stanza],
-			desc = "Send a headline message to a local or remote bare of full JID",
-			module = ?MODULE, function = send_message_headline,
-			args = [{from, binary}, {to, binary},
+     #ejabberd_commands{name = send_message, tags = [stanza],
+			desc = "Send a message to a local or remote bare of full JID",
+			module = ?MODULE, function = send_message,
+			args = [{type, binary}, {from, binary}, {to, binary},
 				{subject, binary}, {body, binary}],
 			result = {res, rescode}},
      #ejabberd_commands{name = send_stanza_c2s, tags = [stanza],
@@ -860,7 +859,11 @@ connected_users_info() ->
 	      NodeS = atom_to_list(node(Pid)),
 	      Uptime = CurrentSec - calendar:datetime_to_gregorian_seconds(
 				      calendar:now_to_local_time(Now)),
-	      {[U, $@, S, $/, R], atom_to_list(Conn), IPS, Port, Priority, NodeS, Uptime}
+	      PriorityI = case Priority of
+			      PI when is_integer(PI) -> PI;
+			      _ -> nil
+			  end,
+	      {[U, $@, S, $/, R], atom_to_list(Conn), IPS, Port, PriorityI, NodeS, Uptime}
       end,
       USRIs).
 
@@ -983,10 +986,15 @@ get_vcard_content(User, Server, Data) ->
 	    throw(error_no_vcard_found)
     end.
 
+get_vcard([<<"TEL">>, TelType], {_, _, _, OldEls}) ->
+    {TakenEl, _NewEls} = take_vcard_tel(TelType, OldEls, [], not_found),
+    [TakenEl];
+
 get_vcard([Data1, Data2], A1) ->
     case get_subtag(A1, Data1) of
     	false -> false;
-	A2List -> lists:flatten([get_vcard([Data2], A2) || A2 <- A2List])
+	A2List ->
+	    lists:flatten([get_vcard([Data2], A2) || A2 <- A2List])
     end;
 
 get_vcard([Data], A1) ->
@@ -1033,6 +1041,24 @@ set_vcard_content(User, Server, Data, SomeContent) ->
 
     Module:Function(JID, JID, IQ2),
     ok.
+
+take_vcard_tel(TelType, [{xmlel, <<"TEL">>, _, SubEls}=OldEl | OldEls], NewEls, Taken) ->
+    {Taken2, NewEls2} = case lists:keymember(TelType, 2, SubEls) of
+	true -> {xml:get_subtag(OldEl, <<"NUMBER">>), NewEls};
+	false -> {Taken, [OldEl | NewEls]}
+    end,
+    take_vcard_tel(TelType, OldEls, NewEls2, Taken2);
+take_vcard_tel(TelType, [OldEl | OldEls], NewEls, Taken) ->
+    take_vcard_tel(TelType, OldEls, [OldEl | NewEls], Taken);
+take_vcard_tel(_TelType, [], NewEls, Taken) ->
+    {Taken, NewEls}.
+
+update_vcard_els([<<"TEL">>, TelType], [TelValue], OldEls) ->
+    {_, NewEls} = take_vcard_tel(TelType, OldEls, [], not_found),
+    NewEl = {xmlel,<<"TEL">>,[],
+             [{xmlel,TelType,[],[]},
+              {xmlel,<<"NUMBER">>,[],[{xmlcdata,TelValue}]}]},
+    [NewEl | NewEls];
 
 update_vcard_els(Data, ContentList, Els1) ->
     Els2 = lists:keysort(2, Els1),
@@ -1266,7 +1292,7 @@ private_get(Username, Host, Element, Ns) ->
     [{xmlel, <<"query">>,
       [{<<"xmlns">>, <<"jabber:iq:private">>}],
       [SubEl]}] = ResIq#iq.sub_el,
-    xml:element_to_string(SubEl).
+    binary_to_list(xml:element_to_binary(SubEl)).
 
 private_set(Username, Host, ElementString) ->
     case xml_stream:parse_element(ElementString) of
@@ -1336,16 +1362,10 @@ srg_user_del(User, Host, Group, GroupHost) ->
 %%% Stanza
 %%%
 
-%% @doc Send a chat message to a Jabber account.
-%% @spec (From::binary(), To::binary(), Body::binary()) -> ok
-send_message_chat(From, To, Body) ->
-    Packet = build_packet(message_chat, [Body]),
-    send_packet_all_resources(From, To, Packet).
-
-%% @doc Send a headline message to a Jabber account.
-%% @spec (From::binary(), To::binary(), Subject::binary(), Body::binary()) -> ok
-send_message_headline(From, To, Subject, Body) ->
-    Packet = build_packet(message_headline, [Subject, Body]),
+%% @doc Send a message to a Jabber account.
+%% @spec (Type::binary(), From::binary(), To::binary(), Subject::binary(), Body::binary()) -> ok
+send_message(Type, From, To, Subject, Body) ->
+    Packet = build_packet(Type, Subject, Body),
     send_packet_all_resources(From, To, Packet).
 
 %% @doc Send a packet to a Jabber account.
@@ -1385,18 +1405,14 @@ send_packet_all_resources(FromJID, ToU, ToS, ToR, Packet) ->
     ToJID = jlib:make_jid(ToU, ToS, ToR),
     ejabberd_router:route(FromJID, ToJID, Packet).
 
-
-build_packet(message_chat, [Body]) ->
+build_packet(Type, Subject, Body) ->
+    Tail = case Subject of
+	<<"chat">> -> [];
+	_ -> [{xmlel, <<"subject">>, [], [{xmlcdata, Subject}]}]
+    end,
     {xmlel, <<"message">>,
-     [{<<"type">>, <<"chat">>}, {<<"id">>, randoms:get_string()}],
-     [{xmlel, <<"body">>, [], [{xmlcdata, Body}]}]
-    };
-build_packet(message_headline, [Subject, Body]) ->
-    {xmlel, <<"message">>,
-     [{<<"type">>, <<"headline">>}, {<<"id">>, randoms:get_string()}],
-     [{xmlel, <<"subject">>, [], [{xmlcdata, Subject}]},
-      {xmlel, <<"body">>, [], [{xmlcdata, Body}]}
-     ]
+     [{<<"type">>, Type}, {<<"id">>, randoms:get_string()}],
+     [{xmlel, <<"body">>, [], [{xmlcdata, Body}]} | Tail]
     }.
 
 send_stanza_c2s(Username, Host, Resource, Stanza) ->

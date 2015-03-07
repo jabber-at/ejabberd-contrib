@@ -52,7 +52,8 @@
 %% ejabberd_hooks callbacks.
 -export([receive_stanza/4,
 	 send_stanza/3,
-	 remove_user/2]).
+	 remove_user/2,
+	 drop_mam_error/4]).
 
 %% gen_iq_handler callback.
 -export([handle_iq/3]).
@@ -201,6 +202,8 @@ init({Host, Opts}) ->
 		       remove_user, 50),
     ejabberd_hooks:add(anonymous_purge_hook, Host, ?MODULE,
 		       remove_user, 50),
+    ejabberd_hooks:add(c2s_filter_packet_in, Host, ?MODULE,
+		       drop_mam_error, 50),
     AccessMaxMsgs =
 	gen_mod:get_opt(access_max_user_messages, Opts,
 			fun(A) when is_atom(A) -> A end, max_user_mam_messages),
@@ -246,7 +249,9 @@ terminate(Reason, #state{host = Host}) ->
     ejabberd_hooks:delete(remove_user, Host, ?MODULE,
 			  remove_user, 50),
     ejabberd_hooks:delete(anonymous_purge_hook, Host, ?MODULE,
-			  remove_user, 50).
+			  remove_user, 50),
+    ejabberd_hooks:delete(c2s_filter_packet_in, Host, ?MODULE,
+			  drop_mam_error, 50).
 
 -spec code_change({down, _} | _, state(), _) -> {ok, state()}.
 
@@ -463,7 +468,9 @@ store_message(#mam_meta{mam_jid = US, first_id = FirstID, last_id = LastID} =
     UpdateMsgTab =
 	fun() ->
 		DeleteMsg = fun(DelID) ->
-				    mnesia:delete({mam_msg, {US, DelID}})
+				    Key = {US, DelID},
+				    ?DEBUG("Deleting MAM message ~w", [Key]),
+				    mnesia:delete({mam_msg, Key})
 			    end,
 		lists:foreach(DeleteMsg, lists:seq(FirstID, NewFirstID - 1)),
 		mnesia:write(Msg#mam_msg{key = {US, ID}, time = os:timestamp()})
@@ -631,14 +638,12 @@ handle_form_request(IQ) ->
 
 handle_archive_request(#jid{luser = U, lserver = S} = JID,
 		       #iq{sub_el = SubEl} = IQ) ->
-    Query1 = parse_request(S, SubEl),
-    Query2 = Query1#mam_query{mam_jid = {U, S}},
-    DBType = gen_mod:db_type(S, ?MODULE),
-    case query_archive(Query2, DBType) of
+    Query = parse_request(S, SubEl),
+    case query_archive(Query#mam_query{mam_jid = {U, S}}) of
       #mam_result{messages = Msgs} = Result ->
 	  ?DEBUG("MAM archive query for ~s successful",
 		 [jlib:jid_to_string(JID)]),
-	  QueryID = Query2#mam_query.query_id,
+	  QueryID = Query#mam_query.query_id,
 	  send_iq_result(JID, IQ),
 	  send_mam_messages(JID, QueryID, Msgs),
 	  send_fin_message(JID, QueryID, Result),
@@ -837,10 +842,10 @@ check_request(_Query) ->
 
 -spec send_iq_result(jid(), iq_request()) -> ok.
 
-send_iq_result(#jid{lserver = Host} = JID, IQ) ->
+send_iq_result(#jid{luser = U, lserver = S} = JID, IQ) ->
     ?DEBUG("Sending IQ result to ~s", [jlib:jid_to_string(JID)]),
     Response = jlib:make_result_iq_reply(jlib:iq_to_xml(IQ#iq{sub_el = []})),
-    ejabberd_router:route(jlib:make_jid(<<"">>, Host, <<"">>), JID, Response).
+    ejabberd_router:route(jlib:make_jid(U, S, <<"">>), JID, Response).
 
 -spec send_mam_messages(jid(), mam_query_id() | undefined, [mam_msg()]) -> ok.
 
@@ -849,7 +854,7 @@ send_mam_messages(JID, QueryID, Msgs) ->
 
 -spec send_mam_message(jid(), mam_query_id() | undefined, mam_msg()) -> ok.
 
-send_mam_message(#jid{lserver = Host} = JID, QueryID,
+send_mam_message(#jid{luser = U, lserver = S} = JID, QueryID,
 		 #mam_msg{key = {_US, MamID}, stanza = Stanza, time = Time}) ->
     ID = jlib:encode_base64(crypto:rand_bytes(9)),
     To = jlib:jid_to_string(JID),
@@ -862,22 +867,23 @@ send_mam_message(#jid{lserver = Host} = JID, QueryID,
 		    attrs = [{<<"xmlns">>, ?NS_HINTS}]},
     Forwarded = #xmlel{name = <<"forwarded">>,
 		       attrs = [{<<"xmlns">>, ?NS_FORWARD}],
-		       children = [Stanza]},
+		       children = [xml:replace_tag_attr(<<"xmlns">>,
+							<<"jabber:client">>,
+							Stanza)]},
     Result = #xmlel{name = <<"result">>,
 		    attrs = [{<<"xmlns">>, ?NS_MAM},
-			     {<<"to">>, To},
 			     {<<"id">>, jlib:integer_to_binary(MamID)}]
 			     ++ QueryIDAttr,
-		    children = [jlib:add_delay_info(Forwarded, Host, Time)]},
+		    children = [jlib:add_delay_info(Forwarded, S, Time)]},
     Message = #xmlel{name = <<"message">>,
 		     attrs = [{<<"id">>, ID}, {<<"to">>, To}],
 		     children = [Result, NoCopy]},
     ?DEBUG("Sending MAM message ~B to ~s", [MamID, To]),
-    ejabberd_router:route(jlib:make_jid(<<"">>, Host, <<"">>), JID, Message).
+    ejabberd_router:route(jlib:make_jid(U, S, <<"">>), JID, Message).
 
 -spec send_fin_message(jid(), mam_query_id(), mam_result()) -> ok.
 
-send_fin_message(#jid{lserver = Host} = JID, QueryID,
+send_fin_message(#jid{luser = U, lserver = S} = JID, QueryID,
 		 #mam_result{count = Count,
 			     index = Index,
 			     first = First,
@@ -918,58 +924,37 @@ send_fin_message(#jid{lserver = Host} = JID, QueryID,
 		     attrs = [{<<"id">>, ID}, {<<"to">>, To}],
 		     children = [Fin, NoCopy]},
     ?DEBUG("Sending MAM result to ~s: ~p (~w)", [To, RSM, IsComplete]),
-    ejabberd_router:route(jlib:make_jid(<<"">>, Host, <<"">>), JID, Message).
+    ejabberd_router:route(jlib:make_jid(U, S, <<"">>), JID, Message).
 
 %%--------------------------------------------------------------------
 %% Query MAM archive.
 %%--------------------------------------------------------------------
 
--spec query_archive(mam_query(), db_type()) -> mam_result() | {error, _}.
+-spec query_archive(mam_query()) -> mam_result() | {error, _}.
 
-query_archive(Query, mnesia) ->
-    {atomic, Result} =
-	mnesia:transaction(fun() -> collect_messages(Query, mnesia) end),
-    Result.
-
--spec read_meta(mam_jid(), db_type()) -> mam_meta().
-
-read_meta(US, mnesia) ->
-    case mnesia:read(mam_meta, US) of
-      [M] ->
-	  M;
-      [] ->
-	  M = #mam_meta{mam_jid = US, mam_type = user},
-	  mnesia:write(M), % Initialize MAM for this user.
-	  M
-    end.
-
--spec collect_messages(mam_query(), db_type())
-      -> mam_result() | {error, _}.
-
-collect_messages(#mam_query{mam_jid = {U, S}, max = Max} = Query, DBType) ->
+query_archive(#mam_query{mam_jid = {U, S}, max = Max} = Query) ->
     case check_request(Query) of
       ok ->
+	  DBType = gen_mod:db_type(S, ?MODULE),
 	  Meta = read_meta({U, S}, DBType),
 	  StartID = get_start_id(Query, Meta),
-	  collect_messages(Query, #mam_query_state{current = StartID,
-						   n_remaining = Max},
-			   Meta, DBType);
+	  query_archive(Query, #mam_query_state{current = StartID,
+						n_remaining = Max},
+			Meta, DBType);
       {error, Error} ->
 	  {error, Error}
     end.
 
--spec collect_messages(mam_query(), mam_query_state(), mam_meta(), db_type())
+-spec query_archive(mam_query(), mam_query_state(), mam_meta(), db_type())
       -> mam_result().
 
-collect_messages(Query,
-		 #mam_query_state{n_remaining = Remaining,
-				  current = ID} = QueryState,
-		 #mam_meta{first_id = FirstID,
-			   last_id = LastID} = Meta,
-		 DBType) when Remaining =:= 0;
-			      ID =:= undefined;
-			      ID < FirstID;
-			      ID > LastID -> % We're done!
+query_archive(Query,
+	      #mam_query_state{n_remaining = ToDo, current = ID} = QueryState,
+	      #mam_meta{first_id = FirstID, last_id = LastID} = Meta, DBType)
+    when ToDo =:= 0;
+	 ID =:= undefined;
+	 ID < FirstID;
+	 ID > LastID -> % We're done!
     #mam_result{messages = resulting_messages(Query, QueryState),
 		count = resulting_count(Query, Meta),
 		index = resulting_index(Query, QueryState, Meta),
@@ -977,106 +962,127 @@ collect_messages(Query,
 		last = resulting_last(Query, QueryState),
 		is_complete = result_is_complete(Query, QueryState, Meta,
 						 DBType)};
-collect_messages(#mam_query{mam_jid = {U, S},
-			    filter = Filter} = Query,
-		 #mam_query_state{messages = Msgs,
-				  current = ID,
-				  n_remaining = N} = QueryState,
-		 Meta, DBType) ->
-    case read_message({{U, S}, ID}, Filter, DBType) of
+query_archive(#mam_query{mam_jid = {U, S},
+			 direction = Direction,
+			 filter = Filter} = Query,
+	      #mam_query_state{messages = Msgs,
+			       current = ID,
+			       n_remaining = N} = QueryState,
+	      Meta, DBType) ->
+    case read_message({{U, S}, ID}, Filter, Direction, DBType) of
       #mam_msg{} = Msg ->
 	  NewQueryState =
-	  case QueryState of
-	    #mam_query_state{first = undefined} ->
-		QueryState#mam_query_state{first = ID,
-					   last = ID,
-					   messages = [Msg]};
-	    #mam_query_state{} ->
-		QueryState#mam_query_state{last = ID,
-					   messages = [Msg | Msgs]}
-	  end,
-	  collect_next(Query, NewQueryState, Meta, N - 1, DBType);
-      filtered ->
-	  collect_next(Query, QueryState, Meta, N, DBType);
+	      case QueryState of
+		#mam_query_state{first = undefined} ->
+		    QueryState#mam_query_state{first = ID,
+					       last = ID,
+					       messages = [Msg]};
+		#mam_query_state{} ->
+		    QueryState#mam_query_state{last = ID,
+					       messages = [Msg | Msgs]}
+	      end,
+	  query_next(Query, NewQueryState, Meta, N - 1, DBType);
+      drop ->
+	  query_next(Query, QueryState, Meta, N, DBType);
+      stop ->
+	  query_next(Query, QueryState, Meta, 0, DBType);
       not_found ->
-	  ?ERROR_MSG("MAM message ~B of ~s@~s not found", [ID, U, S]),
-	  collect_next(Query, QueryState, Meta, N - 1, DBType)
+	  ?DEBUG("MAM message ~B of ~s@~s not found", [ID, U, S]),
+	  query_next(Query, QueryState, Meta, N - 1, DBType)
     end.
 
--spec collect_next(mam_query(), mam_query_state(), mam_meta(),
+-spec query_next(mam_query(), mam_query_state(), mam_meta(),
 		   non_neg_integer(), db_type()) -> mam_result().
 
-collect_next(#mam_query{direction = before} = Query,
-	     #mam_query_state{current = ID} = QueryState, Meta, N, DBType) ->
-    collect_messages(Query, QueryState#mam_query_state{current = ID - 1,
-						       n_remaining = N},
-		     Meta, DBType);
-collect_next(#mam_query{direction = aft} = Query,
-	     #mam_query_state{current = ID} = QueryState, Meta, N, DBType) ->
-    collect_messages(Query, QueryState#mam_query_state{current = ID + 1,
-						       n_remaining = N},
-		     Meta, DBType).
+query_next(#mam_query{direction = before} = Query,
+	   #mam_query_state{current = ID} = QueryState, Meta, N, DBType) ->
+    query_archive(Query, QueryState#mam_query_state{current = ID - 1,
+						    n_remaining = N},
+		  Meta, DBType);
+query_next(#mam_query{direction = aft} = Query,
+	   #mam_query_state{current = ID} = QueryState, Meta, N, DBType) ->
+    query_archive(Query, QueryState#mam_query_state{current = ID + 1,
+						    n_remaining = N},
+		  Meta, DBType).
 
--spec read_message(mam_msg_key(), mam_filter(), db_type())
-      -> mam_msg() | filtered | not_found.
+-spec read_meta(mam_jid(), db_type()) -> mam_meta().
 
-read_message(Key, Filter, mnesia) ->
+read_meta(US, mnesia) ->
+    case mnesia:dirty_read(mam_meta, US) of
+      [M] ->
+	  M;
+      [] ->
+	  M = #mam_meta{mam_jid = US, mam_type = user},
+	  mnesia:dirty_write(M), % Initialize MAM for this user.
+	  M
+    end.
+
+-spec read_message(mam_msg_key(), mam_filter(), direction(), db_type())
+      -> mam_msg() | drop | stop | not_found.
+
+read_message(Key, Filter, Direction, mnesia) ->
     ReadMsg = fun() -> mnesia:read(mam_msg, Key) end,
-    case mnesia:activity(transaction, ReadMsg, [], mnesia_frag) of
+    case mnesia:activity(sync_dirty, ReadMsg, [], mnesia_frag) of
       [#mam_msg{} = Msg] ->
-	  case filter_message(Msg, Filter) of
+	  case filter_message(Msg, Filter, Direction) of
 	    pass ->
-		?DEBUG("Message ~p passes filter ~p", [Msg, Filter]),
+		?DEBUG("Message ~p passes filter", [Msg]),
 		Msg;
-	    drop ->
-		?DEBUG("Message ~p dropped by filter ~p", [Msg, Filter]),
-		filtered
+	    DropOrStop ->
+		?DEBUG("Message ~p filtered: ~s", [Msg, DropOrStop]),
+		DropOrStop
 	  end;
       [] -> not_found
     end.
 
--spec filter_message(mam_msg(), mam_filter()) -> pass | drop.
+-spec filter_message(mam_msg(), mam_filter(), direction())
+      -> pass | drop | stop.
 
-filter_message(_Msg, Filter) when Filter =:= #mam_filter{} -> pass;
-filter_message(Msg, Filter) ->
+filter_message(_Msg, Filter, _Direction) when Filter =:= #mam_filter{} -> pass;
+filter_message(Msg, Filter, Direction) ->
     lists:foldl(fun(FilterType, pass) ->
-			filter_message(FilterType, Msg, Filter);
-		   (_FilterType, drop) ->
-			drop
+			filter_message(FilterType, Msg, Filter, Direction);
+		   (FilterType, drop) ->
+			case filter_message(FilterType, Msg, Filter, Direction)
+			    of
+			  pass ->
+			    drop;
+			  DropOrStop ->
+			    DropOrStop
+			end;
+		   (_FilterType, stop) ->
+			stop
 		end, pass, [start, fin, with]).
 
--spec filter_message(mam_filter_type(), mam_msg(), mam_filter()) -> pass | drop.
+-spec filter_message(mam_filter_type(), mam_msg(), mam_filter(), direction())
+      -> pass | drop | stop.
 
-filter_message(start,
-	       _Msg,
-	       #mam_filter{start = undefined}) ->
+filter_message(start, _Msg, #mam_filter{start = undefined}, _Direction) ->
     pass;
-filter_message(start,
-	       #mam_msg{time = Time},
-	       #mam_filter{start = Start}) when Time >= Start ->
+filter_message(start, #mam_msg{time = Time}, #mam_filter{start = Start},
+	       _Direction) when Time >= Start ->
     pass;
-filter_message(start, _Msg, _Filter) ->
+filter_message(start, _Msg, _Filter, before) ->
+    stop;
+filter_message(start, _Msg, _Filter, aft) ->
     drop;
 
-filter_message(fin,
-	       _Msg,
-	       #mam_filter{fin = undefined}) ->
+filter_message(fin, _Msg, #mam_filter{fin = undefined}, _Direction) ->
     pass;
-filter_message(fin,
-	       #mam_msg{time = Time},
-	       #mam_filter{fin = End}) when Time =< End ->
+filter_message(fin, #mam_msg{time = Time}, #mam_filter{fin = End},
+	       _Direction) when Time =< End ->
     pass;
-filter_message(fin, _Msg, _Filter) ->
+filter_message(fin, _Msg, _Filter, aft) ->
+    stop;
+filter_message(fin, _Msg, _Filter, before) ->
     drop;
 
-filter_message(with,
-	       _Msg,
-	       #mam_filter{with = undefined}) ->
+filter_message(with, _Msg, #mam_filter{with = undefined}, _Direction) ->
     pass;
-
-filter_message(with, Msg, #mam_filter{with = {_U, _S, <<"">>}} = Filter) ->
+filter_message(with, Msg, #mam_filter{with = {_U, _S, <<"">>}} = Filter,
+	       _Direction) ->
     filter_message_with(bare, Msg, Filter);
-filter_message(with, Msg, Filter) ->
+filter_message(with, Msg, Filter, _Direction) ->
     filter_message_with(full, Msg, Filter).
 
 -spec filter_message_with(bare | full, mam_msg(), mam_filter()) -> pass | drop.
@@ -1119,27 +1125,29 @@ filter_message_with(full, _Msg, _Filter) ->
 
 another_message_exists(#mam_query{mam_jid = {U, S},
 				  direction = Direction,
-				  filter = Filter } = Query, ID, DBType) ->
-    case read_message({{U, S}, ID}, Filter, DBType) of
+				  filter = Filter} = Query, ID, DBType) ->
+    case read_message({{U, S}, ID}, Filter, Direction, DBType) of
       #mam_msg{} ->
 	  ?DEBUG("Found another message for ~s@~s: ~B", [U, S, ID]),
 	  true;
       not_found ->
 	  ?DEBUG("Found no other message for ~s@~s: ~B", [U, S, ID]),
 	  false;
-      filtered ->
-	  NextID =
-	  case Direction of
-	    before ->
-		ID - 1;
-	    aft ->
-		ID + 1
-	  end,
+      stop ->
+	  ?DEBUG("Found no other unfiltered message for ~s@~s: ~B", [U, S, ID]),
+	  false;
+      drop ->
+	  NextID = case Direction of
+		     before ->
+			 ID - 1;
+		     aft ->
+			 ID + 1
+		   end,
 	  another_message_exists(Query, NextID, DBType)
     end.
 
 %%--------------------------------------------------------------------
-%% Extract collect_messages/4 results.
+%% Extract query_archive/4 results.
 %%--------------------------------------------------------------------
 
 -spec resulting_messages(mam_query(), mam_query_state()) -> [mam_msg()].
@@ -1255,5 +1263,35 @@ remove_user(LUser, LServer, mnesia) ->
 		      ok
 		end
 	end,
-    {atomic, ok} = mnesia:transaction(Remove),
-    ok.
+    {atomic, ok} = mnesia:sync_transaction(Remove),
+    manage_mnesia_fragments(true).
+
+%%--------------------------------------------------------------------
+%% Drop MAM error bounces.
+%%--------------------------------------------------------------------
+
+drop_mam_error(#xmlel{name = <<"message">>, attrs = Attrs} = Message, _JID,
+	       From, #jid{lresource = <<"">>} = To) ->
+    case xml:get_attr_s(<<"type">>, Attrs) of
+      <<"error">> ->
+	  case xml:get_subtag_with_xmlns(Message, <<"result">>, ?NS_MAM) of
+	    #xmlel{} ->
+		?DEBUG("Dropping MAM result error message from ~s to ~s",
+		       [jlib:jid_to_string(From),
+			jlib:jid_to_string(To)]),
+		drop;
+	    false ->
+		case xml:get_subtag_with_xmlns(Message, <<"fin">>, ?NS_MAM) of
+		  #xmlel{} ->
+		      ?DEBUG("Dropping MAM fin error message from ~s to ~s",
+			     [jlib:jid_to_string(From),
+			      jlib:jid_to_string(To)]),
+		      drop;
+		  false ->
+		      Message
+		end
+	  end;
+      _ ->
+	  Message
+    end;
+drop_mam_error(Acc, _JID, _From, _To) -> Acc.
