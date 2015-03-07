@@ -1,5 +1,6 @@
-ejabberd-modules (1:20150206-1) unstable; urgency=low
+ejabberd-modules (1:20150307-1) unstable; urgency=low
 
+  * Version bump from upstream.
   * Remove packages known to be broken according to README-broken.md:
     * ejabberd-mod-atom-pubsub
     * ejabberd-mod-archive*
@@ -8,7 +9,7 @@ ejabberd-modules (1:20150206-1) unstable; urgency=low
     * ejabberd-mod-post-log
     * ejabberd-mod-auth-http
 
- -- Mathias Ertl <mati@jabber.at>  Fri, 06 Feb 2015 19:20:05 +0100
+ -- Mathias Ertl <mati@jabber.at>  Sat, 07 Mar 2015 09:51:06 +0100
 
 ejabberd-modules (1:20150206-1) unstable; urgency=low
 
