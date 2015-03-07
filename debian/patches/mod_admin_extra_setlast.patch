@@ -1,6 +1,6 @@
 --- a/mod_admin_extra/src/mod_admin_extra.erl
 +++ b/mod_admin_extra/src/mod_admin_extra.erl
-@@ -694,7 +694,7 @@
+@@ -693,7 +693,7 @@
  		    %% If it isnt
  		    [] ->
  			%% Look for his last_activity
@@ -9,7 +9,7 @@
  			    %% If it is
  			    %% existent:
  			    {ok, TimeStamp, _Status} ->
-@@ -728,12 +728,6 @@
+@@ -727,12 +727,6 @@
      Users_removed = lists:filter(F, Users),
      {removed, length(Users_removed), Users_removed}.
  
@@ -22,7 +22,7 @@
  
  %%
  %% Ban account
-@@ -1221,10 +1215,9 @@
+@@ -1247,10 +1241,9 @@
  %%%
  
  get_last(User, Server) ->
@@ -34,7 +34,7 @@
                  not_found ->
                      "Never";
                  {ok, Shift, _Status} ->
-@@ -1243,8 +1236,7 @@
+@@ -1269,8 +1262,7 @@
      end.
  
  set_last(User, Server, Timestamp, Status) ->
