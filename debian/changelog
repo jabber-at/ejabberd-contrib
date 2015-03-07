@@ -4,6 +4,9 @@ ejabberd-modules (1:20150206-1) unstable; urgency=low
     * ejabberd-mod-atom-pubsub
     * ejabberd-mod-archive*
     * ejabberd-mod-ircd
+  * Add new modules:
+    * ejabberd-mod-post-log
+    * ejabberd-mod-auth-http
 
  -- Mathias Ertl <mati@jabber.at>  Fri, 06 Feb 2015 19:20:05 +0100
 

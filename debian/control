@@ -199,3 +199,20 @@ Description: Message Archive Management (XEP-0313) support
  This module implements Message Archive Management (XEP-0313) support.
  .
  XEP-0313 allows server-side storage of messages.
+
+Package: ejabberd-mod-auth-http
+Architecture: any
+Depends: ejabberd (>= 15.02), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
+Description: Authenticate against an external REST API.
+ This module allows ejabberd to authenticate user accounts against an external
+ REST API. This module is useful if you have a central user database you want
+ to share with ejabberd.
+
+Package: ejabberd-mod-post-log
+Architecture: any
+Depends: ejabberd (>= 15.02), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
+Description: Log all messages to an HTTP API.
+ This module implements logging of all messages sent (chat and groupchat) via
+ an HTTP API.
