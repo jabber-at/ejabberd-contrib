@@ -1,5 +1,14 @@
 ejabberd-modules (1:20150206-1) unstable; urgency=low
 
+  * Remove packages known to be broken according to README-broken.md:
+    * ejabberd-mod-atom-pubsub
+    * ejabberd-mod-archive*
+    * ejabberd-mod-ircd
+
+ -- Mathias Ertl <mati@jabber.at>  Fri, 06 Feb 2015 19:20:05 +0100
+
+ejabberd-modules (1:20150206-1) unstable; urgency=low
+
   * Add mod_mam (for XEP-0313, Message Archive Management).
   * Fix mod_muc_log_http, mod_logxml and mod_shcommands to work with ejabberd
     master.
