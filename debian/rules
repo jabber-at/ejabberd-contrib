@@ -31,6 +31,7 @@ build-ejabberd-mod-archive-%:
 
 build-%:
 	rm -f ejabberd-dev/ebin/*.beam
+	mkdir -p ${$*_BUILD_PATH}ebin
 	cd ${$*_BUILD_PATH} && ./build.sh
 
 override_dh_installchangelogs:
