@@ -836,7 +836,7 @@ get_status_list(Host, Status_required) ->
 	    end,
     Sessions3 = [ {Pid, Server, Priority} || {{_User, Server, _Resource}, {_, Pid}, Priority} <- Sessions2, apply(Fhost, [Server, Host])],
     %% For each Pid, get its presence
-    Sessions4 = [ {ejabberd_c2s:get_presence(Pid), Server, Priority} || {Pid, Server, Priority} <- Sessions3],
+    Sessions4 = [ {catch ejabberd_c2s:get_presence(Pid), Server, Priority} || {Pid, Server, Priority} <- Sessions3],
     %% Filter by status
     Fstatus = case Status_required of
 		  <<"all">> ->
@@ -976,10 +976,11 @@ get_vcard_content(User, Server, Data) ->
     JID = jlib:make_jid(User, Server, get_module_resource(Server)),
     IQ = #iq{type = get, xmlns = ?NS_VCARD},
     IQr = Module:Function(JID, JID, IQ),
-    case IQr#iq.sub_el of
-	[A1] ->
+    [A1] = IQr#iq.sub_el,
+    case A1#xmlel.children of
+	[_] ->
 	    case get_vcard(Data, A1) of
-		[] -> throw(error_no_value_found_in_vcard);
+		[false] -> throw(error_no_value_found_in_vcard);
 		ElemList -> [xml:get_tag_cdata(Elem) || Elem <- ElemList]
 	    end;
 	[] ->
@@ -1406,10 +1407,9 @@ send_packet_all_resources(FromJID, ToU, ToS, ToR, Packet) ->
     ejabberd_router:route(FromJID, ToJID, Packet).
 
 build_packet(Type, Subject, Body) ->
-    Tail = case Subject of
-	<<"chat">> -> [];
-	_ -> [{xmlel, <<"subject">>, [], [{xmlcdata, Subject}]}]
-    end,
+    Tail = if Subject == <<"">>; Type == <<"chat">> -> [];
+	      true -> [{xmlel, <<"subject">>, [], [{xmlcdata, Subject}]}]
+	   end,
     {xmlel, <<"message">>,
      [{<<"type">>, Type}, {<<"id">>, randoms:get_string()}],
      [{xmlel, <<"body">>, [], [{xmlcdata, Body}]} | Tail]
