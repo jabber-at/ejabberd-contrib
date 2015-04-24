@@ -28,7 +28,9 @@ ejabberd-mod-post-log_BUILD_PATH=mod_post_log/
 build-%:
 	rm -f ejabberd-dev/ebin/*.beam
 	mkdir -p ${$*_BUILD_PATH}ebin
-	cd ${$*_BUILD_PATH} && ./build.sh
+	cd ${$*_BUILD_PATH} && erlc -o ebin -I include -I /usr/lib/ejabberd/include \
+	    -DLAGER -DNO_EXT_LIB \
+	    src/*.erl
 
 override_dh_installchangelogs:
 	dh_installchangelogs
