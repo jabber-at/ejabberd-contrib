@@ -8,18 +8,6 @@ Homepage: http://www.ejabberd.im/ejabberd-contrib
 VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
 VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
 
-Package: ejabberd-mod-admin-extra
-Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: Extra commands for ejabberdctl
- This package gives you extra commands for ejabberctl
-
-Package: ejabberd-mod-muc-admin
-Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: Extra commands for ejabberdctl for MUC-administration
- This package gives you extra commands for ejabberctl
-
 Package: ejabberd-mod-s2s-log
 Architecture: any
 Depends: ejabberd (>= 1:14.12), ${misc:Depends}
