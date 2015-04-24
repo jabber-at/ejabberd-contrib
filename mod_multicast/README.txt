@@ -2,9 +2,11 @@
 
 	mod_multicast - Extended Stanza Addressing (XEP-0033) support
 
+        NOTE: This module is included in ejabberd since 15.04
+
 	Homepage: http://ejabberd.jabber.ru/mod_multicast
 	Author: Badlop
-	Module for ejabberd master branch
+
 
 
 	DESCRIPTION
@@ -20,8 +22,8 @@ The development of this module is included on a Google Summer of Code 2007 proje
 
 1. Compile the module.
 2. Copy the binary files to ejabberd ebin directory.
-3. Edit ejabberd.cfg and add the module to the list of modules:
-  {mod_multicast, []},
+3. Edit ejabberd.yml and add the module to the list of modules:
+  mod_multicast: {}
 4. Start ejabberd.
 
 
@@ -48,31 +50,34 @@ limits:
 	EXAMPLE CONFIGURATION
 	---------------------
 
-% Only admins can send packets to multicast service
-{access, multicast, [{allow, admin}, {deny, all}]}.
+# Only admins can send packets to multicast service
+access:
+  multicast:
+    admin: allow
+    all: deny
 
-% If you want to allow all your users:
-%{access, multicast, [{allow, all}]}.
+# If you want to allow all your users:
+access:
+  multicast:
+    all: allow
 
-% This allows both admins and remote users to send packets,
-% but does not allow local users
-%{acl, allservers, {server_glob, "*"}}.
-%{access, multicast, [{allow, admin}, {deny, local}, {allow, allservers}]}.
+# This allows both admins and remote users to send packets,
+# but does not allow local users
+acl:
+  allservers:
+    server_glob: "*"
+access:
+  multicast:
+    admin: allow
+    local: deny
+    allservers: allow
 
 
-{modules, [
-  ...
-  {mod_multicast, [
-     %{host, "multicast.example.org"},
-     {access, multicast},
-     {limits, [
-       {local, message, 40},
-       {local, presence, infinite},
-       {remote, message, 150}
-     ]}
-  ]},
-  ...
-]}.
+modules:
+  mod_multicast:
+     host: "multicast.example.org"
+     access: multicast
+     limits, "> [ {local,message,40}, {local,presence,infinite}, {remote,message,150} ]."
 
 
 	TO DO

@@ -2,10 +2,10 @@
 
 	mod_muc_admin - Administrative features for MUC
 
+	NOTE: This module is included in ejabberd since 15.04
+
 	Homepage: http://www.ejabberd.im/mod_muc_admin
 	Author: Badlop
-	Requirements: ejabberd trunk SVN 1699 or newer
-
 
 This module implements several ejabberd commands that can be
 executed using ejabberdctl.
@@ -17,12 +17,9 @@ rooms.
 	CONFIGURATION
 	=============
 
-Add the module to your ejabberd.cfg, on the modules section:
-{modules, [
-  ...
-  {mod_muc_admin, []},
-  ...
-]}.
+Add the module to your ejabberd.yml, on the modules section:
+modules:
+  mod_muc_admin: {}
 
 
 	EJABBERD COMMANDS
