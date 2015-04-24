@@ -2,7 +2,7 @@ Source: ejabberd-modules
 Section: net
 Priority: optional
 Maintainer: Mathias Ertl <mati@jabber.at>
-Build-Depends: erlang-base, erlang-tools, debhelper (>= 9)
+Build-Depends: erlang-base, erlang-tools, ejabberd-dev, debhelper (>= 9)
 Standards-Version: 3.9.1
 Homepage: http://www.ejabberd.im/ejabberd-contrib
 VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
