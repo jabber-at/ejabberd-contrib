@@ -1,2 +1,2 @@
 mod_webpresence/ebin/mod_webpresence.beam usr/lib/ejabberd/ebin
-mod_webpresence/data/pixmaps usr/share/ejabberd-mod-webpresence
+mod_webpresence/priv/pixmaps usr/share/ejabberd-mod-webpresence
