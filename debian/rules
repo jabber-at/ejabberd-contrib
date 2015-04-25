@@ -29,7 +29,7 @@ build-%:
 	rm -f ejabberd-dev/ebin/*.beam
 	mkdir -p ${$*_BUILD_PATH}ebin
 	cd ${$*_BUILD_PATH} && erlc -o ebin -I include -I /usr/lib/ejabberd/include \
-	    -DLAGER -DNO_EXT_LIB \
+	    -DLAGER \
 	    src/*.erl
 
 override_dh_installchangelogs:
