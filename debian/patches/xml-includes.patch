@@ -12,3 +12,15 @@
  
  -record(task, {taskid, timerref, host, task}).
  
+--- a/mod_log_chat/src/mod_log_chat.erl
++++ b/mod_log_chat/src/mod_log_chat.erl
+@@ -16,7 +16,9 @@
+ 	 log_packet_send/3,
+ 	 log_packet_receive/4]).
+ 
++-ifndef(LAGER).
+ -define(LAGER, 1).
++-endif.
+ 
+ -include("ejabberd.hrl").
+ -include("logger.hrl").
