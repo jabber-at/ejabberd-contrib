@@ -1,6 +1,7 @@
 ejabberd-modules (1:20150424-1) unstable; urgency=low
 
   * Version bump from upstream.
+  * Remove patches, all are no longer needed.
   * Remove ejabberd-mod-muc-admin and ejabberd-mod-admin-extra, they are now
     included in ejabberd master.
 
