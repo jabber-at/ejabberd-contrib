@@ -89,6 +89,18 @@ Description: Serve MUC logs on the web
  of mod_http_fileserver, customized for log serving.
 
 Package: ejabberd-mod-mam
+Depends: ejabberd-mod-mam-mnesia, ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: Transitional dummy package
+ This is a transitional dummy package. It can be safely removed.
+ .
+ The new package name is ejabberd-mod-mam-mnesia.
+
+Package: ejabberd-mod-mam-mnesia
+Replaces: ejabberd-mod-mam (<< 1:20150702)
+Breaks: ejabberd-mod-mam (<< 1:20150702)
 Architecture: any
 Depends: ejabberd (>= 1:14.12), ${misc:Depends}
 Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
