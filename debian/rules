@@ -21,8 +21,8 @@ ejabberd-mod-post-log_BUILD_PATH=mod_post_log/
 %:
 	dh $@
 
-#build-ejabberd-mod-archive-%:
-#	# ejabberd-mod-archive compiles all modules
+build-ejabberd-mod-mam:
+	# Old transitionary package
 
 build-%:
 	rm -f ejabberd-dev/ebin/*.beam
