@@ -6,3 +6,5 @@
 # Do you like debian?
 db_input medium ejabberd-mod-mam/deprecation || true
 db_go
+
+#DEBHELPER#
