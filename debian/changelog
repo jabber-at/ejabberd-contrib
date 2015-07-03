@@ -2,6 +2,7 @@ ejabberd-modules (1:20150702-1) unstable; urgency=low
 
   * Version bump from upstream.
   * Remove xml-includes.patch, applied upstream.
+  * Remove mod_multicast (included in ejabberd 15.04 and newer).
 
  -- Mathias Ertl <mati@jabber.at>  Fri, 03 Jul 2015 18:57:49 +0200
 

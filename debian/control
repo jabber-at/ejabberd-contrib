@@ -88,16 +88,6 @@ Description: Serve MUC logs on the web
  to allow your users to view the MUC logs.  It is a small modification
  of mod_http_fileserver, customized for log serving.
 
-Package: ejabberd-mod-multicast
-Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Homepage: http://www.ejabberd.im/mod_profile
-Description: Extended Stanza Addressing (XEP-0033) support
- This module implements Extended Stanza Addressing (XEP-0033).
- .
- The development of this module is included on a Google Summer of Code 2007
- project.
-
 Package: ejabberd-mod-mam
 Architecture: any
 Depends: ejabberd (>= 1:14.12), ${misc:Depends}
