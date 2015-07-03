@@ -33,9 +33,7 @@ build-%:
 
 override_dh_installchangelogs:
 	dh_installchangelogs
-	dh_installchangelogs -pejabberd-mod-admin-extra mod_admin_extra/ChangeLog
 	dh_installchangelogs -pejabberd-mod-logxml mod_logxml/ChangeLog
-	dh_installchangelogs -pejabberd-mod-muc-admin mod_muc_admin/ChangeLog
 	dh_installchangelogs -pejabberd-mod-s2s-log mod_s2s_log/ChangeLog
 	dh_installchangelogs -pejabberd-mod-statsdx mod_statsdx/ChangeLog
 
