@@ -5,6 +5,7 @@ ejabberd-modules (1:20150702-1) unstable; urgency=low
   * Remove mod_multicast (included in ejabberd 15.04 and newer).
   * Rename ejabberd-mod-mam to ejabberd-mod-mam-mnesia to match the new
     official name.
+  * ejabberd-mod-mam displays a depcrecation notice to users.
 
  -- Mathias Ertl <mati@jabber.at>  Fri, 03 Jul 2015 18:57:49 +0200
 
