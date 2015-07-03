@@ -13,10 +13,12 @@
 -export([start/2,
          init/1,
 	 stop/1,
-	 log_packet_send/3,
-	 log_packet_receive/4]).
+	 log_packet_send/4,
+	 log_packet_receive/5]).
 
+-ifndef(LAGER).
 -define(LAGER, 1).
+-endif.
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -75,21 +77,23 @@ stop(Host) ->
     gen_mod:get_module_proc(Host, ?PROCNAME) ! stop,
     ok.
 
-log_packet_send(From, To, Packet) ->
-    log_packet(From, To, Packet, From#jid.lserver).
+log_packet_send(Packet, _C2SState, From, To) ->
+    log_packet(From, To, Packet, From#jid.lserver),
+    Packet.
 
-log_packet_receive(_JID, From, To, _Packet) when From#jid.lserver == To#jid.lserver->
-    ok; % only log at send time if the message is local to the server
-log_packet_receive(_JID, From, To, Packet) ->
-    log_packet(From, To, Packet, To#jid.lserver).
+log_packet_receive(Packet, _C2SState, _JID, From, To) when From#jid.lserver == To#jid.lserver->
+    Packet; % only log at send time if the message is local to the server
+log_packet_receive(Packet, _C2SState, _JID, From, To) ->
+    log_packet(From, To, Packet, To#jid.lserver),
+    Packet.
 
 log_packet(From, To, Packet = #xmlel{name = <<"message">>, attrs = Attrs}, Host) ->
     case xml:get_attr_s(<<"type">>, Attrs) of
 	<<"groupchat">> -> %% mod_muc_log already does it
-	    ?DEBUG("dropping groupchat: ~s", [xml:element_to_string(Packet)]),
+	    ?DEBUG("dropping groupchat: ~s", [xml:element_to_binary(Packet)]),
 	    ok;
 	<<"error">> -> %% we don't log errors
-	    ?DEBUG("dropping error: ~s", [xml:element_to_string(Packet)]),
+	    ?DEBUG("dropping error: ~s", [xml:element_to_binary(Packet)]),
 	    ok;
 	_ ->
 	    write_packet(From, To, Packet, Host)

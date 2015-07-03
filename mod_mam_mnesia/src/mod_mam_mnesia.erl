@@ -1,5 +1,5 @@
 %%%----------------------------------------------------------------------
-%%% File    : mod_mam.erl
+%%% File    : mod_mam_mnesia.erl
 %%% Author  : Holger Weiss <holger@zedat.fu-berlin.de>
 %%% Purpose : Message Archive Management (XEP-0313)
 %%% Created : 25 Jan 2015 by Holger Weiss <holger@zedat.fu-berlin.de>
@@ -23,7 +23,7 @@
 %%%
 %%%----------------------------------------------------------------------
 
--module(mod_mam).
+-module(mod_mam_mnesia).
 -author('holger@zedat.fu-berlin.de').
 
 -define(NS_MAM, <<"urn:xmpp:mam:0">>).
@@ -50,8 +50,9 @@
 	 code_change/3]).
 
 %% ejabberd_hooks callbacks.
--export([receive_stanza/4,
-	 send_stanza/3,
+-export([disco_features/5,
+	 receive_stanza/5,
+	 send_stanza/4,
 	 remove_user/2]).
 
 %% gen_iq_handler callback.
@@ -157,7 +158,9 @@ start(Host, Opts) ->
 			     parallel),
     gen_iq_handler:add_iq_handler(ejabberd_sm, Host, ?NS_MAM, ?MODULE,
 				  handle_iq, IQDisc),
+    %% Set up MAM feature announcement.
     mod_disco:register_feature(Host, ?NS_MAM),
+    ejabberd_hooks:add(disco_sm_features, Host, ?MODULE, disco_features, 50),
     %% Set up message storage process.
     Proc = gen_mod:get_module_proc(Host, ?PROCNAME),
     Spec = {Proc, {?MODULE, start_link, [Host, Opts]}, permanent, 3000, worker,
@@ -167,6 +170,8 @@ start(Host, Opts) ->
 -spec stop(binary()) -> ok.
 
 stop(Host) ->
+    ejabberd_hooks:delete(disco_sm_features, Host, ?MODULE, disco_features, 50),
+    %% Stop message storage process.
     Proc = gen_mod:get_module_proc(Host, ?PROCNAME),
     ok = supervisor:terminate_child(ejabberd_sup, Proc),
     ok = supervisor:delete_child(ejabberd_sup, Proc).
@@ -258,10 +263,21 @@ code_change(_OldVsn, #state{host = Host} = State, _Extra) ->
 %% ejabberd_hooks callbacks.
 %%--------------------------------------------------------------------
 
--spec receive_stanza(jid(), jid(), jid(), xmlel()) -> ok.
+-spec disco_features(empty | {result, [binary()]}, jid(), jid(), binary(),
+		     binary()) -> {result, [binary()]}.
 
-receive_stanza(#jid{luser = U, lserver = S} = JID, From, To,
-	       #xmlel{name = <<"message">>} = Stanza) ->
+disco_features(empty, From, To, Node, Lang) ->
+    disco_features({result, []}, From, To, Node, Lang);
+disco_features({result, OtherFeatures},
+	       #jid{luser = U, lserver = S},
+	       #jid{luser = U, lserver = S}, <<"">>, _Lang) ->
+    {result, OtherFeatures ++ [?NS_MAM]};
+disco_features(Acc, _From, _To, _Node, _Lang) -> Acc.
+
+-spec receive_stanza(xmlel(), term(), jid(), jid(), jid()) -> xmlel().
+
+receive_stanza(#xmlel{name = <<"message">>} = Stanza, _C2SState,
+	       #jid{luser = U, lserver = S} = JID, From, To) ->
     case is_desired(incoming, JID, To, Stanza) of
       true ->
 	  Proc = gen_mod:get_module_proc(S, ?PROCNAME),
@@ -272,15 +288,15 @@ receive_stanza(#jid{luser = U, lserver = S} = JID, From, To,
 	  ?GEN_SERVER:cast(Proc, {store, {U, S}, Msg});
       false ->
 	  ?DEBUG("Won't archive undesired incoming stanza for ~s",
-		 [jlib:jid_to_string(To)]),
-	  ok
-    end;
-receive_stanza(_JID, _From, _To, _Stanza) -> ok.
+		 [jlib:jid_to_string(To)])
+    end,
+    Stanza;
+receive_stanza(Stanza, _C2SState, _JID, _From, _To) -> Stanza.
 
--spec send_stanza(jid(), jid(), xmlel()) -> ok.
+-spec send_stanza(xmlel(), term(), jid(), jid()) -> xmlel().
 
-send_stanza(#jid{luser = U, lserver = S} = From, To,
-	    #xmlel{name = <<"message">>} = Stanza) ->
+send_stanza(#xmlel{name = <<"message">>} = Stanza, _C2SState,
+	    #jid{luser = U, lserver = S} = From, To) ->
     case is_desired(outgoing, From, To, Stanza) of
       true ->
 	  Proc = gen_mod:get_module_proc(S, ?PROCNAME),
@@ -291,10 +307,10 @@ send_stanza(#jid{luser = U, lserver = S} = From, To,
 	  ?GEN_SERVER:cast(Proc, {store, {U, S}, Msg});
       false ->
 	  ?DEBUG("Won't archive undesired outgoing stanza from ~s",
-		 [jlib:jid_to_string(From)]),
-	  ok
-    end;
-send_stanza(_From, _To, _Stanza) -> ok.
+		 [jlib:jid_to_string(From)])
+    end,
+    Stanza;
+send_stanza(Stanza, _C2SState, _From, _To) -> Stanza.
 
 %%--------------------------------------------------------------------
 %% Check whether stanza should be stored.

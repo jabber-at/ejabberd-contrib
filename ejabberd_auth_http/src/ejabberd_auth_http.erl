@@ -8,6 +8,10 @@
 -module(ejabberd_auth_http).
 -author('piotr.nosek@erlang-solutions.com').
 
+-behaviour(ejabberd_gen_auth).
+
+-behaviour(ejabberd_config).
+
 %% External exports
 -export([start/1,
          set_password/3,
@@ -25,8 +29,11 @@
          remove_user/2,
          remove_user/3,
          plain_password_required/0,
-         store_type/1
-        ]).
+         store_type/1,
+         login/2,
+         get_password/3,
+         opt_type/1,
+         stop/1]).
 
 -include("ejabberd.hrl").
 -include("logger.hrl").
@@ -35,14 +42,17 @@
 %%% API
 %%%----------------------------------------------------------------------
 
+opt_type(auth_opts) -> fun (V) -> V end;
+opt_type(_) -> [auth_opts].
+
 -spec start(binary()) -> ok.
 start(Host) ->
-    AuthOpts = ejabberd_config:get_local_option(auth_opts, Host),
+    AuthOpts = ejabberd_config:get_option({auth_opts, Host}, fun(V) -> V end),
     {_, AuthHost} = lists:keyfind(host, 1, AuthOpts),
     PoolSize = proplists:get_value(connection_pool_size, AuthOpts, 10),
     Opts = proplists:get_value(connection_opts, AuthOpts, []),
     ChildMods = [fusco],
-    ChildMFA = {fusco, start_link, [AuthHost, Opts]},
+    ChildMFA = {fusco, start_link, [binary_to_list(AuthHost), Opts]},
 
     {ok, _} = supervisor:start_child(ejabberd_sup,
                                      {{ejabberd_auth_http_sup, Host},
@@ -57,15 +67,14 @@ plain_password_required() ->
 
 -spec store_type(binary()) -> plain | scram.
 store_type(Server) ->
-    case scram:enabled(Server) of
+    case scram2:enabled(Server) of
         false -> plain;
         true -> scram
     end.
 
--spec check_password(binary(), binary(), binary()) -> boolean().
-check_password(User, Server, Password) ->
-    {LUser, LServer} = stringprep(User, Server),
-    case scram:enabled(Server) of
+-spec check_password(ejabberd:luser(), ejabberd:lserver(), binary()) -> boolean().
+check_password(LUser, LServer, Password) ->
+    case scram2:enabled(LServer) of
         false ->
             case make_req(get, <<"check_password">>, LUser, LServer, Password) of
                 {ok, <<"true">>} -> true;
@@ -75,33 +84,45 @@ check_password(User, Server, Password) ->
             {ok, true} =:= verify_scram_password(LUser, LServer, Password)
     end.
 
--spec check_password(binary(), binary(), binary(), binary(), fun()) -> boolean().
-check_password(User, Server, Password, Digest, DigestGen) ->
-    {LUser, LServer} = stringprep(User, Server),
+-spec check_password(ejabberd:luser(), ejabberd:lserver(), binary(), binary(), fun()) -> boolean().
+check_password(LUser, LServer, Password, Digest, DigestGen) ->
     case make_req(get, <<"get_password">>, LUser, LServer, <<"">>) of
         {error, _} ->
             false;
         {ok, GotPasswd} ->
-            case scram:enabled(LServer) of
+            case scram2:enabled(LServer) of
                 true ->
-                    case scram:deserialize(GotPasswd) of
-                        {ok, #scram{storedkey = StoredKey}} ->
-                            Passwd = base64:decode(StoredKey),
-                            ejabberd_auth:check_digest(Digest, DigestGen, Password, Passwd);
+                    case scram2:deserialize(GotPasswd) of
+                        {ok, #scram{} = Scram} ->
+                            scram2:check_digest(Scram, Digest, DigestGen, Password);
                         _ ->
                             false
                     end;
                 false ->
-                    ejabberd_auth:check_digest(Digest, DigestGen, Password, GotPasswd)
+                    check_digest(Digest, DigestGen, Password, GotPasswd)
             end
     end.
 
--spec set_password(binary(), binary(), binary()) -> ok | {error, term()}.
-set_password(User, Server, Password) ->
-    {LUser, LServer} = stringprep(User, Server),
-    PasswordFinal = case scram:enabled(LServer) of
-                        true -> scram:serialize(scram:password_to_scram(
-                                                  Password, scram:iterations(Server)));
+-spec check_digest(binary(), fun(), binary(), binary()) -> boolean().
+check_digest(Digest, DigestGen, Password, Passwd) ->
+    DigRes = if
+                 Digest /= <<>> ->
+                     Digest == DigestGen(Passwd);
+                 true ->
+                     false
+             end,
+    if DigRes ->
+           true;
+       true ->
+           (Passwd == Password) and (Password /= <<>>)
+    end.
+
+
+-spec set_password(ejabberd:luser(), ejabberd:lserver(), binary()) -> ok | {error, term()}.
+set_password(LUser, LServer, Password) ->
+    PasswordFinal = case scram2:enabled(LServer) of
+                        true -> scram2:serialize(scram2:password_to_scram(
+                                                  Password, scram2:iterations(LServer)));
                         false -> Password
                     end,
     case make_req(post, <<"set_password">>, LUser, LServer, PasswordFinal) of
@@ -109,17 +130,16 @@ set_password(User, Server, Password) ->
         _ -> ok
     end.
 
--spec try_register(binary(), binary(), binary()) -> {atomic, ok | exists} | {error, term()}.
-try_register(User, Server, Password) ->
-    {LUser, LServer} = stringprep(User, Server),
-    PasswordFinal = case scram:enabled(LServer) of
-                        true -> scram:serialize(scram:password_to_scram(
-                                                  Password, scram:iterations(Server)));
+-spec try_register(ejabberd:luser(), ejabberd:lserver(), binary()) -> {atomic, ok | exists} | {error, term()}.
+try_register(LUser, LServer, Password) ->
+    PasswordFinal = case scram2:enabled(LServer) of
+                        true -> scram2:serialize(scram2:password_to_scram(
+                                                  Password, scram2:iterations(LServer)));
                         false -> Password
                     end,
     case make_req(post, <<"register">>, LUser, LServer, PasswordFinal) of
-        {ok, created} -> {atomic, ok};
-        {error, conflict} -> {atomic, exists};
+        {ok, created} -> ok;
+        {error, conflict} -> {error, exists};
         Error -> Error
     end.
 
@@ -127,11 +147,11 @@ try_register(User, Server, Password) ->
 dirty_get_registered_users() ->
     [].
 
--spec get_vh_registered_users(binary()) -> [].
+-spec get_vh_registered_users(ejabberd:lserver()) -> [].
 get_vh_registered_users(_Server) ->
     [].
 
--spec get_vh_registered_users(binary(), list()) -> [].
+-spec get_vh_registered_users(ejabberd:lserver(), list()) -> [].
 get_vh_registered_users(_Server, _Opts) ->
     [].
 
@@ -139,26 +159,22 @@ get_vh_registered_users(_Server, _Opts) ->
 get_vh_registered_users_number(_Server) ->
     0.
 
--spec get_vh_registered_users_number(binary(), list()) -> 0.
+-spec get_vh_registered_users_number(ejabberd:lserver(), list()) -> 0.
 get_vh_registered_users_number(_Server, _Opts) ->
     0.
 
--spec get_password(binary(), binary()) -> false | binary() |
+-spec get_password(ejabberd:luser(), ejabberd:lserver()) -> false | binary() |
                                           {binary(), binary(), binary(), integer()}.
-get_password(User, Server) ->
-    {LUser, LServer} = stringprep(User, Server),
+get_password(LUser, LServer) ->
     case make_req(get, <<"get_password">>, LUser, LServer, <<"">>) of
         {error, _} ->
             false;
         {ok, Password} ->
-            case scram:enabled(LServer) of
+            case scram2:enabled(LServer) of
                 true ->
-                    case scram:deserialize(Password) of
+                    case scram2:deserialize(Password) of
                         {ok, #scram{} = Scram} ->
-                            {base64:decode(Scram#scram.storedkey),
-                             base64:decode(Scram#scram.serverkey),
-                             base64:decode(Scram#scram.salt),
-                             Scram#scram.iterationcount};
+                            scram2:scram_to_tuple(Scram);
                         _ ->
                             false
                     end;
@@ -167,30 +183,27 @@ get_password(User, Server) ->
             end
     end.
 
--spec get_password_s(binary(), binary()) -> binary().
+-spec get_password_s(ejabberd:luser(), ejabberd:lserver()) -> binary().
 get_password_s(User, Server) ->
     case get_password(User, Server) of
         Pass when is_binary(Pass) -> Pass;
         _ -> <<>>
     end.
 
--spec is_user_exists(binary(), binary()) -> boolean().
-is_user_exists(User, Server) ->
-    {LUser, LServer} = stringprep(User, Server),
+-spec is_user_exists(ejabberd:luser(), ejabberd:lserver()) -> boolean().
+is_user_exists(LUser, LServer) ->
     case make_req(get, <<"user_exists">>, LUser, LServer, <<"">>) of
         {ok, <<"true">>} -> true;
         _ -> false
     end.
 
--spec remove_user(binary(), binary()) -> ok | not_exists | not_allowed | bad_request.
-remove_user(User, Server) ->
-    {LUser, LServer} = stringprep(User, Server),
+-spec remove_user(ejabberd:luser(), ejabberd:lserver()) -> ok | not_exists | not_allowed | bad_request.
+remove_user(LUser, LServer) ->
     remove_user_req(LUser, LServer, <<"">>, <<"remove_user">>).
 
--spec remove_user(binary(), binary(), binary()) -> ok | not_exists | not_allowed | bad_request.
-remove_user(User, Server, Password) ->
-    {LUser, LServer} = stringprep(User, Server),
-    case scram:enabled(Server) of
+-spec remove_user(ejabberd:luser(), ejabberd:lserver(), binary()) -> ok | not_exists | not_allowed | bad_request.
+remove_user(LUser, LServer, Password) ->
+    case scram2:enabled(LServer) of
         false ->
             remove_user_req(LUser, LServer, Password, <<"remove_user_validate">>);
         true ->
@@ -223,13 +236,13 @@ remove_user_req(LUser, LServer, Password, Method) ->
 make_req(_, _, LUser, LServer, _) when LUser == error orelse LServer == error ->
     {error, {prep_failed, LUser, LServer}};
 make_req(Method, Path, LUser, LServer, Password) -> 
-    AuthOpts = ejabberd_config:get_local_option(auth_opts, LServer),
+    AuthOpts = ejabberd_config:get_option({auth_opts, LServer}, fun(V) -> V end),
     BasicAuth = case lists:keyfind(basic_auth, 1, AuthOpts) of
                     {_, BasicAuth0} -> BasicAuth0;
                     _ -> ""
                 end,
     PathPrefix = case lists:keyfind(path_prefix, 1, AuthOpts) of
-                     {_, Prefix} -> ejabberd_binary:string_to_binary(Prefix);
+                     {_, Prefix} -> Prefix;
                      false -> <<"/">>
                  end,
     BasicAuth64 = base64:encode(BasicAuth),
@@ -263,9 +276,6 @@ make_req(Method, Path, LUser, LServer, Password) ->
 %%%----------------------------------------------------------------------
 %%% Other internal functions
 %%%----------------------------------------------------------------------
-
-stringprep(User, Server) -> {jlib:nodeprep(User), jlib:nameprep(Server)}.
-
 -spec pool_name(binary()) -> atom().
 pool_name(Host) ->
     list_to_atom("ejabberd_auth_http_" ++ binary_to_list(Host)).
@@ -279,9 +289,9 @@ existing_pool_name(Host) ->
 verify_scram_password(LUser, LServer, Password) ->
     case make_req(get, <<"get_password">>, LUser, LServer, <<"">>) of
         {ok, RawPassword} ->
-            case scram:deserialize(RawPassword) of
+            case scram2:deserialize(RawPassword) of
                 {ok, #scram{} = ScramRecord} ->
-                    {ok, scram:check_password(Password, ScramRecord)};
+                    {ok, scram2:check_password(Password, ScramRecord)};
                 _ ->
                     {error, bad_request}
             end;
@@ -289,3 +299,11 @@ verify_scram_password(LUser, LServer, Password) ->
             {error, not_exists}
     end.
 
+login(_User, _Server) ->
+    erlang:error(not_implemented).
+
+get_password(_User, _Server, _DefaultValue) ->
+    erlang:error(not_implemented).
+
+stop(_Host) ->
+    ok.
