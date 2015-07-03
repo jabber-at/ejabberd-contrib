@@ -1,6 +1,6 @@
 Template: ejabberd-mod-mam/deprecation
 Type: note
-Description: ejabberd-mod-mam is deprecated in favor of ejabberd-mod-mam-mnesia.
+Description: ejabberd-mod-mam is deprecated in favor of ejabberd-mod-mam-mnesia
  The new package is autoatmically installed, but please make sure you replace 
  "mod_mam" with "mod_mam_mnesia" in your config. mod_mam is now the name of the
  official package shipping with ejabberd since 15.06.
