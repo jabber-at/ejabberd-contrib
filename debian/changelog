@@ -1,6 +1,7 @@
 ejabberd-modules (1:20150702-2) unstable; urgency=low
 
   * Build dependency for ejabberd is now versioned >= 15.04.
+  * ejabberd-mod-mam: depend on ejabberd-mod-mam-mnesia.
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 04 Jul 2015 10:54:10 +0200
 
