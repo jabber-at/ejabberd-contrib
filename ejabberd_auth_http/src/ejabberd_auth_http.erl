@@ -8,7 +8,7 @@
 -module(ejabberd_auth_http).
 -author('piotr.nosek@erlang-solutions.com').
 
--behaviour(ejabberd_gen_auth).
+-behaviour(ejabberd_auth).
 
 -behaviour(ejabberd_config).
 
@@ -29,7 +29,7 @@
          remove_user/2,
          remove_user/3,
          plain_password_required/0,
-         store_type/1,
+         store_type/0,
          login/2,
          get_password/3,
          opt_type/1,
@@ -65,12 +65,9 @@ start(Host) ->
 plain_password_required() ->
     false.
 
--spec store_type(binary()) -> plain | scram.
-store_type(Server) ->
-    case scram2:enabled(Server) of
-        false -> plain;
-        true -> scram
-    end.
+-spec store_type() -> plain | scram.
+store_type() ->
+    ejabberd_auth_odbc:store_type().
 
 -spec check_password(ejabberd:luser(), ejabberd:lserver(), binary()) -> boolean().
 check_password(LUser, LServer, Password) ->

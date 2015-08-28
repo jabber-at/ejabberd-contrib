@@ -321,7 +321,7 @@ send_stanza(Stanza, _C2SState, _From, _To) -> Stanza.
 is_desired(Route, JID, To, Message) ->
     is_chat_or_normal_message(Message) andalso
     has_non_empty_body(Message) andalso
-    not has_no_storage_hint(Message) andalso
+    not has_no_store_hint(Message) andalso
     not is_bare_copy(Route, JID, To) andalso
     not is_resent(Message).
 
@@ -351,12 +351,17 @@ message_type(#xmlel{attrs = Attrs}) ->
 -spec has_non_empty_body(xmlel()) -> boolean().
 
 has_non_empty_body(Message) ->
-    xml:get_subtag_cdata(Message, <<"body">>) =/= <<"">>.
+    xml:get_subtag_cdata(Message, <<"body">>) =/= <<"">> orelse
+    xml:get_subtag(Message, <<"encrypted">>) =/= false.
 
--spec has_no_storage_hint(xmlel()) -> boolean().
+-spec has_no_store_hint(xmlel()) -> boolean().
 
-has_no_storage_hint(Message) ->
+has_no_store_hint(Message) ->
+    xml:get_subtag_with_xmlns(Message, <<"no-store">>, ?NS_HINTS)
+	=/= false orelse
     xml:get_subtag_with_xmlns(Message, <<"no-storage">>, ?NS_HINTS)
+	=/= false orelse
+    xml:get_subtag_with_xmlns(Message, <<"no-permanent-store">>, ?NS_HINTS)
 	=/= false orelse
     xml:get_subtag_with_xmlns(Message, <<"no-permanent-storage">>, ?NS_HINTS)
 	=/= false.
@@ -720,21 +725,25 @@ parse_request(Host, Query) ->
 parse_form(#xmlel{} = Query) ->
     case xml:get_subtag_with_xmlns(Query, <<"x">>, ?NS_XDATA) of
 	#xmlel{children = Fields} ->
-	    parse_form(Fields);
+	    parse_form(xml:remove_cdata(Fields));
 	false ->
 	    #mam_filter{}
     end;
 parse_form(Fields) when is_list(Fields) ->
+    StripCData =
+	fun(#xmlel{children = Els} = Field) ->
+		Field#xmlel{children = xml:remove_cdata(Els)}
+	end,
     Parse =
 	fun(#xmlel{name = <<"field">>,
 		   attrs = Attrs,
-		   children = [#xmlel{name = <<"value">>, children = [Value]}]},
+		   children = [#xmlel{name = <<"value">>, children = Els}]},
 	    Form) ->
 		case xml:get_attr_s(<<"var">>, Attrs) of
 		  <<"FORM_TYPE">> ->
 		      Form;
 		  <<"start">> ->
-		      CData = xml:get_cdata([Value]),
+		      CData = get_cdata_without_whitespace(Els),
 		      case jlib:datetime_string_to_timestamp(CData) of
 			undefined ->
 			    Form#mam_filter{start = error};
@@ -742,7 +751,7 @@ parse_form(Fields) when is_list(Fields) ->
 			    Form#mam_filter{start = Start}
 		      end;
 		  <<"end">> ->
-		      CData = xml:get_cdata([Value]),
+		      CData = get_cdata_without_whitespace(Els),
 		      case jlib:datetime_string_to_timestamp(CData) of
 			undefined ->
 			    Form#mam_filter{fin = error};
@@ -750,7 +759,7 @@ parse_form(Fields) when is_list(Fields) ->
 			    Form#mam_filter{fin = End}
 		      end;
 		  <<"with">> ->
-		      CData = xml:get_cdata([Value]),
+		      CData = get_cdata_without_whitespace(Els),
 		      case jlib:string_to_jid(CData) of
 			error ->
 			    Form#mam_filter{with = error};
@@ -765,7 +774,7 @@ parse_form(Fields) when is_list(Fields) ->
 		?DEBUG("Got unexpected form element: ~p", [El]),
 		Form
 	end,
-    lists:foldl(Parse, #mam_filter{}, Fields).
+    lists:foldl(Parse, #mam_filter{}, lists:map(StripCData, Fields)).
 
 -spec get_page_size_conf(binary()) -> mam_page_size_conf().
 
@@ -846,6 +855,12 @@ check_request(#mam_query{index = Index, filter = Filter})
     {error, ?ERR_FEATURE_NOT_IMPLEMENTED};
 check_request(_Query) ->
     ok.
+
+-spec get_cdata_without_whitespace([xmlel() | cdata()]) -> binary().
+
+get_cdata_without_whitespace(Els) ->
+    CData = xml:get_cdata(Els),
+    re:replace(CData, <<"[[:space:]]">>, <<"">>, [global, {return, binary}]).
 
 %%--------------------------------------------------------------------
 %% Send responses.
