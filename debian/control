@@ -110,7 +110,7 @@ Description: Authenticate against an external REST API.
 
 Package: ejabberd-mod-post-log
 Architecture: any
-Depends: ejabberd (>= 15.02), ${misc:Depends}
+Depends: ejabberd (>= 14.07), ${misc:Depends}
 Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
 Description: Log all messages to an HTTP API.
  This module implements logging of all messages sent (chat and groupchat) via
