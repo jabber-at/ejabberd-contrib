@@ -22,9 +22,6 @@ ejabberd-mod-http-upload-log_BUILD_PATH=mod_http_upload/
 %:
 	dh $@
 
-build-ejabberd-mod-mam:
-	# Old transitionary package
-
 build-%:
 	rm -f ejabberd-dev/ebin/*.beam
 	mkdir -p ${$*_BUILD_PATH}ebin

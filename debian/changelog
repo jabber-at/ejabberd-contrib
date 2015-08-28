@@ -2,6 +2,7 @@ ejabberd-modules (1:20150827-1) unstable; urgency=low
 
   * Massive updates to ejabberd-mod-auth-http.
   * Add ejabberd-mod-http-upload.
+  * Remove ejabberd-mod-mam (transitional package).
   * Various bugfixes for ejabberd-mod-mam-mnesia and ejabberd-mod-statsdx.
 
  -- Mathias Ertl <mati@jabber.at>  Fri, 28 Aug 2015 11:20:38 +0200
