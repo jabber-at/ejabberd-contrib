@@ -125,3 +125,12 @@ Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
 Description: Log all messages to an HTTP API.
  This module implements logging of all messages sent (chat and groupchat) via
  an HTTP API.
+
+Package: ejabberd-mod-http-upload
+Architecture: any
+Depends: ejabberd (>= 13.06), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_http_upload
+Description: HTTP File Upload (XEP-0363)
+ This module allows for requesting permissions to upload a file via HTTP.
+ If the request is accepted, the client receives a URL to use for uploading
+ the file and another URL from which that file can later be downloaded.
