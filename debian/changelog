@@ -1,3 +1,9 @@
+ejabberd-modules (1:20150916-1) unstable; urgency=low
+
+  * Version bump from upstream.
+
+ -- Mathias Ertl <mati@jabber.at>  Wed, 23 Sep 2015 16:56:35 +0200
+
 ejabberd-modules (1:20150827-1) unstable; urgency=low
 
   * Massive updates to ejabberd-mod-auth-http.
