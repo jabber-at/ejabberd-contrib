@@ -77,6 +77,19 @@ The configurable mod_http_upload options are:
   mod_http_upload.  Otherwise, a SHA-1 hash of the user's bare JID is
   included instead.
 
+- file_mode (default: 'undefined')
+
+  This option defines the permission bits of uploaded files.  The bits are
+  specified as an octal number (see the chmod(1) manual page) within double
+  quotes.  For example: "0644".
+
+- dir_mode (default: 'undefined')
+
+  This option defines the permission bits of the 'docroot' directory and any
+  directories created during file uploads.  The bits are specified as an
+  octal number (see the chmod(1) manual page) within double quotes.  For
+  example: "0755".
+
 - docroot (default: "@HOME@/upload")
 
   Uploaded files are stored below the directory specified (as an absolute
@@ -103,7 +116,11 @@ The configurable mod_http_upload options are:
 
   If a 'service_url' is specified, HTTP upload slot requests are forwarded
   to this external service instead of being handled by mod_http_upload
-  itself.  An HTTP GET query such as the following is issued whenever an
+  itself.  Such a service is available as a Django app, for example:
+
+  https://github.com/mathiasertl/django-xmpp-http-upload
+
+  An HTTP GET query such as the following is issued whenever an
   HTTP upload slot request is accepted as per the 'access' rule:
 
   http://localhost:5444/?jid=juliet%40example.com&size=10240&name=example.jpg
@@ -133,8 +150,30 @@ The configurable mod_http_upload options are:
   In any other case, a 'service-unavailable' error stanza is sent to the
   client.
 
+- custom_headers (default: [])
+
+  This option specifies additional header fields to be included in all HTTP
+  responses.  For example:
+
+    custom_headers:
+      "Access-Control-Allow-Origin": "*"
+      "Access-Control-Allow-Methods": "OPTIONS, HEAD, GET, PUT"
+
 - rm_on_unregister (default: 'true')
 
   This option specifies whether files uploaded by a user should be removed
   when that user is unregistered.  It must be set to 'false' if this is not
   desired.
+
+
+	REMOVING OLD FILES
+	------------------
+
+You might want to use cron(8) to remove uploaded files that are older than
+some number of days:
+
+0 1 * * * find /home/xmpp/upload -type f -ctime +365 -exec rm -f '{}' ';'
+0 2 * * * find /home/xmpp/upload -type d -exec rmdir '{}' ';' 2>/dev/null
+
+Note that /home/xmpp/upload must be replaced with your actual 'docroot'
+path, and 365 with the desired number of days.
