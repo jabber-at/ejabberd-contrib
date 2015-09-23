@@ -319,24 +319,18 @@ send_stanza(Stanza, _C2SState, _From, _To) -> Stanza.
 -spec is_desired(route(), jid(), jid(), xmlel()) -> boolean().
 
 is_desired(Route, JID, To, Message) ->
-    is_chat_or_normal_message(Message) andalso
-    has_non_empty_body(Message) andalso
+    looks_interesting(Message) andalso
     not has_no_store_hint(Message) andalso
     not is_bare_copy(Route, JID, To) andalso
     not is_resent(Message).
 
--spec is_chat_or_normal_message(xmlel()) -> boolean().
+-spec looks_interesting(xmlel()) -> boolean().
 
-is_chat_or_normal_message(#xmlel{name = <<"message">>} = Message) ->
-    case message_type(Message) of
-      <<"chat">> ->
-	  true;
-      <<"normal">> ->
-	  true;
-      _ ->
-	  false
-    end;
-is_chat_or_normal_message(_Message) -> false.
+looks_interesting(Message) ->
+    Type = message_type(Message),
+    (is_chat_or_normal(Type) andalso has_non_empty_body(Message))
+    orelse
+    (has_store_hint(Message) andalso not is_error(Type)).
 
 -spec message_type(xmlel()) -> binary().
 
@@ -348,11 +342,30 @@ message_type(#xmlel{attrs = Attrs}) ->
 	  <<"normal">>
     end.
 
+-spec is_chat_or_normal(binary()) -> boolean().
+
+is_chat_or_normal(<<"chat">>) -> true;
+is_chat_or_normal(<<"normal">>) -> true;
+is_chat_or_normal(_Type) -> false.
+
+-spec is_error(binary()) -> boolean().
+
+is_error(<<"error">>) -> true;
+is_error(_Type) -> false.
+
 -spec has_non_empty_body(xmlel()) -> boolean().
 
 has_non_empty_body(Message) ->
     xml:get_subtag_cdata(Message, <<"body">>) =/= <<"">> orelse
     xml:get_subtag(Message, <<"encrypted">>) =/= false.
+
+-spec has_store_hint(xmlel()) -> boolean().
+
+has_store_hint(Message) ->
+    xml:get_subtag_with_xmlns(Message, <<"store">>, ?NS_HINTS)
+	=/= false orelse
+    xml:get_subtag_with_xmlns(Message, <<"pretty-please-store">>, ?NS_HINTS)
+	=/= false.
 
 -spec has_no_store_hint(xmlel()) -> boolean().
 
