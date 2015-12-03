@@ -1,6 +1,7 @@
 ejabberd-modules (1:20151209-0.1) unstable; urgency=low
 
   * Version bump from upstream.
+  * Remove ejabberd-mod-http-upload (included in ejabberd core).
   * Switch to 0.1 as Debian revision.
 
  -- Mathias Ertl <mati@jabber.at>  Thu, 03 Dec 2015 11:52:29 +0100
