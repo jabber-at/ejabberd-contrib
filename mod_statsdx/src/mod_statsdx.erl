@@ -13,7 +13,7 @@
 
 -behaviour(gen_mod).
 
--export([start/2, loop/1, stop/1, get_statistic/2,
+-export([start/2, loop/1, stop/1, mod_opt_type/1, get_statistic/2,
 	 %% Commands
 	 getstatsdx/1, getstatsdx/2,
 	 get_top_users/2,
@@ -78,6 +78,8 @@ stop(Host) ->
 	_ -> ?PROCNAME ! {stop, Host}
     end.
 
+mod_opt_type(hooks) -> fun (B) when is_boolean(B) or (B==traffic) -> B end;
+mod_opt_type(_) -> [hooks].
 
 %%%==================================
 %%%% Stats Server
@@ -454,10 +456,14 @@ get(N, ["httppollusers"]) -> rpc:call(N, mnesia, table_info, [http_poll, size]);
 get(_, ["httpbindusers", title]) -> "HTTP-Bind users (aprox)";
 get(N, ["httpbindusers"]) -> rpc:call(N, mnesia, table_info, [http_bind, size]);
 
-get(_, ["s2sconnections", title]) -> "Outgoing S2S connections";
+get(_, ["s2sconnectionsoutgoing", title]) -> "Outgoing S2S connections";
+get(_, ["s2sconnectionsoutgoing"]) -> ejabberd_s2s:outgoing_s2s_number();
+get(_, ["s2sconnectionsincoming", title]) -> "Incoming S2S connections";
+get(_, ["s2sconnectionsincoming"]) -> ejabberd_s2s:incoming_s2s_number();
+get(_, ["s2sconnections", title]) -> "S2S connections";
 get(_, ["s2sconnections"]) -> length(get_S2SConns());
 get(_, ["s2sconnections", Host]) -> get_s2sconnections(Host);
-get(_, ["s2sservers", title]) -> "Outgoing S2S servers";
+get(_, ["s2sservers", title]) -> "S2S servers";
 get(_, ["s2sservers"]) -> length(lists:usort([element(2, C) || C <- get_S2SConns()]));
 
 get(_, ["offlinemsg", title]) -> "Offline messages";
@@ -1616,6 +1622,7 @@ commands() ->
     [
      #ejabberd_commands{name = get_top_users, tags = [stats],
 			desc = "Get top X users with larger offlinemsg, vcard or roster.",
+			policy = admin,
 			module = ?MODULE, function = get_top_users,
 			args = [{topnumber, integer}, {topic, string}],
 			result = {top, {list,
@@ -1627,11 +1634,13 @@ commands() ->
 				       }}},
      #ejabberd_commands{name = getstatsdx, tags = [stats],
 			desc = "Get statistical value.",
+			policy = admin,
 			module = ?MODULE, function = getstatsdx,
 			args = [{name, string}],
 			result = {stat, integer}},
      #ejabberd_commands{name = getstatsdx_host, tags = [stats],
 			desc = "Get statistical value for this host.",
+			policy = admin,
 			module = ?MODULE, function = getstatsdx,
 			args = [{name, string}, {host, string}],
 			result = {stat, integer}}

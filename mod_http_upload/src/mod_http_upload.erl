@@ -12,8 +12,9 @@
 -define(NS_HTTP_UPLOAD, <<"urn:xmpp:http:upload">>).
 -define(NS_HTTP_UPLOAD_OLD, <<"eu:siacs:conversations:http:upload">>).
 -define(SERVICE_REQUEST_TIMEOUT, 5000). % 5 seconds.
--define(SLOT_TIMEOUT, 600000). % 10 minutes.
+-define(SLOT_TIMEOUT, 18000000). % 5 hours.
 -define(PROCNAME, ?MODULE).
+-define(FORMAT(Error), file:format_error(Error)).
 -define(URL_ENC(URL), binary_to_list(ejabberd_http:url_encode(URL))).
 -define(ADDR_TO_STR(IP), ejabberd_config:may_hide_data(jlib:ip_to_list(IP))).
 -define(STR_TO_INT(Str, B), jlib:binary_to_integer(iolist_to_binary(Str), B)).
@@ -66,6 +67,10 @@
 %% ejabberd_hooks callback.
 -export([remove_user/2]).
 
+%% Utility functions.
+-export([get_proc_name/2,
+	 expand_home/1]).
+
 -include("ejabberd.hrl").
 -include("ejabberd_http.hrl").
 -include("jlib.hrl").
@@ -113,7 +118,7 @@ start(ServerHost, Opts) ->
 			     remove_user, 50);
       false -> ok
     end,
-    Proc = get_proc_name(ServerHost),
+    Proc = get_proc_name(ServerHost, ?PROCNAME),
     Spec = {Proc,
 	    {?MODULE, start_link, [ServerHost, Proc, Opts]},
 	    permanent,
@@ -135,11 +140,11 @@ stop(ServerHost) ->
 				remove_user, 50);
       false -> ok
     end,
-    Proc = get_proc_name(ServerHost),
+    Proc = get_proc_name(ServerHost, ?PROCNAME),
     ok = supervisor:terminate_child(ejabberd_sup, Proc),
     ok = supervisor:delete_child(ejabberd_sup, Proc).
 
--spec mod_opt_type(atom()) -> fun((term()) -> term()).
+-spec mod_opt_type(atom()) -> fun((term()) -> term()) | [atom()].
 
 mod_opt_type(host) ->
     fun iolist_to_binary/1;
@@ -149,7 +154,7 @@ mod_opt_type(access) ->
     fun(A) when is_atom(A) -> A end;
 mod_opt_type(max_size) ->
     fun(I) when is_integer(I), I > 0 -> I;
-        (infinity) -> infinity
+       (infinity) -> infinity
     end;
 mod_opt_type(secret_length) ->
     fun(I) when is_integer(I), I >= 8 -> I end;
@@ -245,6 +250,7 @@ init({ServerHost, Opts}) ->
       <<"https://", _/binary>> ->
 	  application:start(inets),
 	  application:start(crypto),
+	  application:start(asn1),
 	  application:start(public_key),
 	  application:start(ssl)
     end,
@@ -264,7 +270,11 @@ init({ServerHost, Opts}) ->
 		get_url = expand_host(str:strip(GetURL, right, $/), ServerHost),
 		service_url = ServiceURL}}.
 
--spec handle_call(_, {pid(), _}, state()) -> {noreply, state()}.
+-spec handle_call(_, {pid(), _}, state())
+      -> {reply, {ok, pos_integer(), binary(),
+		      pos_integer() | undefined,
+		      pos_integer() | undefined}, state()} |
+	 {reply, {error, binary()}, state()} | {noreply, state()}.
 
 handle_call({use_slot, Slot}, _From, #state{file_mode = FileMode,
 					    dir_mode = DirMode,
@@ -346,7 +356,7 @@ process(LocalPath, #request{method = 'PUT', host = Host, ip = IP,
 	    ok ->
 		http_response(Host, 201);
 	    {error, Error} ->
-		?ERROR_MSG("Cannot store file ~s from ~s for ~s: ~s",
+		?ERROR_MSG("Cannot store file ~s from ~s for ~s: ~p",
 			   [Path, ?ADDR_TO_STR(IP), Host, Error]),
 		http_response(Host, 500)
 	  end;
@@ -398,8 +408,8 @@ process(LocalPath, #request{method = Method, host = Host, ip = IP})
 			  [Path, ?ADDR_TO_STR(IP)]),
 		http_response(Host, 404);
 	    {error, Error} ->
-		?INFO_MSG("Cannot serve ~s to ~s: ~p",
-			  [Path, ?ADDR_TO_STR(IP), Error]),
+		?INFO_MSG("Cannot serve ~s to ~s: ~s",
+			  [Path, ?ADDR_TO_STR(IP), ?FORMAT(Error)]),
 		http_response(Host, 500)
 	  end;
       Error ->
@@ -415,6 +425,31 @@ process(_LocalPath, #request{method = Method, host = Host, ip = IP}) ->
     ?DEBUG("Rejecting ~s request from ~s for ~s",
 	   [Method, ?ADDR_TO_STR(IP), Host]),
     http_response(Host, 405, [{<<"Allow">>, <<"OPTIONS, HEAD, GET, PUT">>}]).
+
+%%--------------------------------------------------------------------
+%% Exported utility functions.
+%%--------------------------------------------------------------------
+
+-spec get_proc_name(binary(), atom()) -> atom().
+
+get_proc_name(ServerHost, ModuleName) ->
+    PutURL = gen_mod:get_module_opt(ServerHost, ?MODULE, put_url,
+				    fun(<<"http://", _/binary>> = URL) -> URL;
+				       (<<"https://", _/binary>> = URL) -> URL;
+				       (_) -> <<"http://@HOST@">>
+				    end,
+				    <<"http://@HOST@">>),
+    [_, ProcHost | _] = binary:split(expand_host(PutURL, ServerHost),
+				     [<<"http://">>, <<"https://">>,
+				      <<":">>, <<"/">>], [global]),
+    gen_mod:get_module_proc(ProcHost, ModuleName).
+
+-spec expand_home(binary()) -> binary().
+
+expand_home(Subject) ->
+    {ok, [[Home]]} = init:get_argument(home),
+    Parts = binary:split(Subject, <<"@HOME@">>, [global]),
+    str:join(Parts, list_to_binary(Home)).
 
 %%--------------------------------------------------------------------
 %% Internal functions.
@@ -434,17 +469,16 @@ process_iq(_From,
 	  sub_el = [#xmlel{name = <<"query">>,
 			   attrs = [{<<"xmlns">>, ?NS_DISCO_INFO}],
 			   children = iq_disco_info(Lang, Name) ++ AddInfo}]};
-process_iq(#jid{luser = LUser, lserver = LServer} = From,
+process_iq(From,
 	   #iq{type = get, xmlns = XMLNS, lang = Lang, sub_el = SubEl} = IQ,
 	   #state{server_host = ServerHost, access = Access} = State)
     when XMLNS == ?NS_HTTP_UPLOAD;
 	 XMLNS == ?NS_HTTP_UPLOAD_OLD ->
-    User = <<LUser/binary, $@, LServer/binary>>,
     case acl:match_rule(ServerHost, Access, From) of
       allow ->
 	  case parse_request(SubEl, Lang) of
 	    {ok, File, Size, ContentType} ->
-		case create_slot(State, User, File, Size, ContentType, Lang) of
+		case create_slot(State, From, File, Size, ContentType, Lang) of
 		  {ok, Slot} ->
 		      {ok, Timer} = timer:send_after(?SLOT_TIMEOUT,
 						     {slot_timed_out, Slot}),
@@ -458,11 +492,13 @@ process_iq(#jid{luser = LUser, lserver = LServer} = From,
 		      IQ#iq{type = error, sub_el = [SubEl, Error]}
 		end;
 	    {error, Error} ->
-		?DEBUG("Cannot parse request from ~s", [User]),
+		?DEBUG("Cannot parse request from ~s",
+		       [jlib:jid_to_string(From)]),
 		IQ#iq{type = error, sub_el = [SubEl, Error]}
 	  end;
       deny ->
-	  ?DEBUG("Denying HTTP upload slot request from ~s", [User]),
+	  ?DEBUG("Denying HTTP upload slot request from ~s",
+		 [jlib:jid_to_string(From)]),
 	  IQ#iq{type = error, sub_el = [SubEl, ?ERR_FORBIDDEN]}
     end;
 process_iq(_From, #iq{sub_el = SubEl} = IQ, _State) ->
@@ -499,34 +535,46 @@ parse_request(#xmlel{name = <<"request">>, attrs = Attrs} = Request, Lang) ->
     end;
 parse_request(_El, _Lang) -> {error, ?ERR_BAD_REQUEST}.
 
--spec create_slot(state(), binary(), binary(), pos_integer(), binary(),
-		  binary())
+-spec create_slot(state(), jid(), binary(), pos_integer(), binary(), binary())
       -> {ok, slot()} | {ok, binary(), binary()} | {error, xmlel()}.
 
 create_slot(#state{service_url = undefined, max_size = MaxSize},
-	    User, File, Size, _ContentType, Lang) when MaxSize /= infinity,
-						       Size > MaxSize ->
+	    JID, File, Size, _ContentType, Lang) when MaxSize /= infinity,
+						      Size > MaxSize ->
     Text = <<"File larger than ", (jlib:integer_to_binary(MaxSize))/binary,
 	     " Bytes.">>,
     ?INFO_MSG("Rejecting file ~s from ~s (too large: ~B bytes)",
-	      [File, User, Size]),
+	      [File, jlib:jid_to_string(JID), Size]),
     {error, ?ERRT_NOT_ACCEPTABLE(Lang, Text)};
 create_slot(#state{service_url = undefined,
 		   jid_in_url = JIDinURL,
-		   secret_length = SecretLength},
-	    User, File, _Size, _ContentType, _Lang) ->
-    UserStr = make_user_string(User, JIDinURL),
-    RandStr = make_rand_string(SecretLength),
-    FileStr = make_file_string(File),
-    ?INFO_MSG("Got HTTP upload slot for ~s (file: ~s)", [User, File]),
-    {ok, [UserStr, RandStr, FileStr]};
-create_slot(#state{service_url = ServiceURL}, User, File, Size, ContentType,
+		   secret_length = SecretLength,
+		   server_host = ServerHost,
+		   docroot = DocRoot},
+	    JID, File, Size, _ContentType, Lang) ->
+    UserStr = make_user_string(JID, JIDinURL),
+    UserDir = <<DocRoot/binary, $/, UserStr/binary>>,
+    case ejabberd_hooks:run_fold(http_upload_slot_request, ServerHost, allow,
+				 [JID, UserDir, Size, Lang]) of
+      allow ->
+	  RandStr = make_rand_string(SecretLength),
+	  FileStr = make_file_string(File),
+	  ?INFO_MSG("Got HTTP upload slot for ~s (file: ~s)",
+		    [jlib:jid_to_string(JID), File]),
+	  {ok, [UserStr, RandStr, FileStr]};
+      deny ->
+	  {error, ?ERR_SERVICE_UNAVAILABLE};
+      #xmlel{} = Error ->
+	  {error, Error}
+    end;
+create_slot(#state{service_url = ServiceURL},
+	    #jid{luser = U, lserver = S} = JID, File, Size, ContentType,
 	    _Lang) ->
     Options = [{body_format, binary}, {full_result, false}],
     HttpOptions = [{timeout, ?SERVICE_REQUEST_TIMEOUT}],
     SizeStr = jlib:integer_to_binary(Size),
     GetRequest = binary_to_list(ServiceURL) ++
-		     "?jid=" ++ ?URL_ENC(User) ++
+		     "?jid=" ++ ?URL_ENC(jlib:jid_to_string({U, S, <<"">>})) ++
 		     "&name=" ++ ?URL_ENC(File) ++
 		     "&size=" ++ ?URL_ENC(SizeStr) ++
 		     "&content_type=" ++ ?URL_ENC(ContentType),
@@ -535,29 +583,32 @@ create_slot(#state{service_url = ServiceURL}, User, File, Size, ContentType,
 	  case binary:split(Body, <<$\n>>, [global, trim]) of
 	    [<<"http", _/binary>> = PutURL, <<"http", _/binary>> = GetURL] ->
 		?INFO_MSG("Got HTTP upload slot for ~s (file: ~s)",
-			  [User, File]),
+			  [jlib:jid_to_string(JID), File]),
 		{ok, PutURL, GetURL};
 	    Lines ->
 		?ERROR_MSG("Cannot parse data received for ~s from <~s>: ~p",
-			   [User, ServiceURL, Lines]),
+			   [jlib:jid_to_string(JID), ServiceURL, Lines]),
 		{error, ?ERR_SERVICE_UNAVAILABLE}
 	  end;
       {ok, {402, _Body}} ->
-	  ?INFO_MSG("Got status code 402 for ~s from <~s>", [User, ServiceURL]),
+	  ?INFO_MSG("Got status code 402 for ~s from <~s>",
+		    [jlib:jid_to_string(JID), ServiceURL]),
 	  {error, ?ERR_RESOURCE_CONSTRAINT};
       {ok, {403, _Body}} ->
-	  ?INFO_MSG("Got status code 403 for ~s from <~s>", [User, ServiceURL]),
+	  ?INFO_MSG("Got status code 403 for ~s from <~s>",
+		    [jlib:jid_to_string(JID), ServiceURL]),
 	  {error, ?ERR_NOT_ALLOWED};
       {ok, {413, _Body}} ->
-	  ?INFO_MSG("Got status code 413 for ~s from <~s>", [User, ServiceURL]),
+	  ?INFO_MSG("Got status code 413 for ~s from <~s>",
+		    [jlib:jid_to_string(JID), ServiceURL]),
 	  {error, ?ERR_NOT_ACCEPTABLE};
       {ok, {Code, _Body}} ->
-	  ?ERROR_MSG("Got unexpected status code ~s from <~s>: ~B",
-		     [User, ServiceURL, Code]),
+	  ?ERROR_MSG("Got unexpected status code for ~s from <~s>: ~B",
+		     [jlib:jid_to_string(JID), ServiceURL, Code]),
 	  {error, ?ERR_SERVICE_UNAVAILABLE};
       {error, Reason} ->
 	  ?ERROR_MSG("Error requesting upload slot for ~s from <~s>: ~p",
-		     [User, ServiceURL, Reason]),
+		     [jlib:jid_to_string(JID), ServiceURL, Reason]),
 	  {error, ?ERR_SERVICE_UNAVAILABLE}
     end.
 
@@ -592,13 +643,12 @@ slot_el(PutURL, GetURL, XMLNS) ->
 		       #xmlel{name = <<"get">>,
 			      children = [{xmlcdata, GetURL}]}]}.
 
--spec make_user_string(binary(), sha1 | node) -> binary().
+-spec make_user_string(jid(), sha1 | node) -> binary().
 
-make_user_string(User, sha1) ->
-    p1_sha:sha(User);
-make_user_string(User, node) ->
-    [Node, _Domain] = binary:split(User, <<$@>>),
-    re:replace(Node, <<"[^a-zA-Z0-9_.-]">>, <<$_>>, [global, {return, binary}]).
+make_user_string(#jid{luser = U, lserver = S}, sha1) ->
+    p1_sha:sha(<<U/binary, $@, S/binary>>);
+make_user_string(#jid{luser = U}, node) ->
+    re:replace(U, <<"[^a-zA-Z0-9_.-]">>, <<$_>>, [global, {return, binary}]).
 
 -spec make_file_string(binary()) -> binary().
 
@@ -626,13 +676,6 @@ map_int_to_char(N) when N =<  9 -> N + 48; % Digit.
 map_int_to_char(N) when N =< 35 -> N + 55; % Upper-case character.
 map_int_to_char(N) when N =< 61 -> N + 61. % Lower-case character.
 
--spec expand_home(binary()) -> binary().
-
-expand_home(Subject) ->
-    {ok, [[Home]]} = init:get_argument(home),
-    Parts = binary:split(Subject, <<"@HOME@">>, [global]),
-    str:join(Parts, list_to_binary(Home)).
-
 -spec expand_host(binary(), binary()) -> binary().
 
 expand_host(Subject, Host) ->
@@ -658,7 +701,9 @@ iq_disco_info(Lang, Name) ->
 
 %% HTTP request handling.
 
--spec store_file(file:filename_all(), binary(), integer(), integer())
+-spec store_file(file:filename_all(), binary(),
+		 integer() | undefined,
+		 integer() | undefined)
       -> ok | {error, term()}.
 
 store_file(Path, Data, FileMode, DirMode) ->
@@ -683,7 +728,7 @@ store_file(Path, Data, FileMode, DirMode) ->
 	ok = Ok % Raise an exception if file:write/2 failed.
     catch
       _:{badmatch, {error, Error}} ->
-	  {error, Error};
+	  {error, ?FORMAT(Error)};
       _:Error ->
 	  {error, Error}
     end.
@@ -741,22 +786,6 @@ code_to_message(413) -> <<"File size doesn't match requested size.">>;
 code_to_message(500) -> <<"Internal server error.">>;
 code_to_message(_Code) -> <<"">>.
 
-%% Miscellaneous helpers.
-
--spec get_proc_name(binary()) -> atom().
-
-get_proc_name(ServerHost) ->
-    PutURL = gen_mod:get_module_opt(ServerHost, ?MODULE, put_url,
-				    fun(<<"http://", _/binary>> = URL) -> URL;
-				       (<<"https://", _/binary>> = URL) -> URL;
-				       (_) -> <<"http://@HOST@">>
-				    end,
-				    <<"http://@HOST@">>),
-    [_, ProcHost | _] = binary:split(expand_host(PutURL, ServerHost),
-				     [<<"http://">>, <<"https://">>,
-				      <<":">>, <<"/">>], [global]),
-    gen_mod:get_module_proc(ProcHost, ?PROCNAME).
-
 %%--------------------------------------------------------------------
 %% Remove user.
 %%--------------------------------------------------------------------
@@ -764,17 +793,16 @@ get_proc_name(ServerHost) ->
 -spec remove_user(binary(), binary()) -> ok.
 
 remove_user(User, Server) ->
-    LUser = jlib:nodeprep(User),
-    LServer = jlib:nameprep(Server),
-    DocRoot = gen_mod:get_module_opt(LServer, ?MODULE, docroot,
+    ServerHost = jlib:nameprep(Server),
+    DocRoot = gen_mod:get_module_opt(ServerHost, ?MODULE, docroot,
 				     fun iolist_to_binary/1,
 				     <<"@HOME@/upload">>),
-    JIDinURL = gen_mod:get_module_opt(LServer, ?MODULE, jid_in_url,
+    JIDinURL = gen_mod:get_module_opt(ServerHost, ?MODULE, jid_in_url,
 				      fun(sha1) -> sha1;
 					 (node) -> node
 				      end,
 				      sha1),
-    UserStr = make_user_string(<<LUser/binary, $@, LServer/binary>>, JIDinURL),
+    UserStr = make_user_string(jlib:make_jid(User, Server, <<"">>), JIDinURL),
     UserDir = str:join([expand_home(DocRoot), UserStr], <<$/>>),
     case del_tree(UserDir) of
 	ok ->
@@ -805,7 +833,7 @@ del_tree(Dir) ->
 	ok = file:del_dir(Dir)
     catch
       _:{badmatch, {error, Error}} ->
-	  {error, Error};
+	  {error, ?FORMAT(Error)};
       _:Error ->
 	  {error, Error}
     end.
