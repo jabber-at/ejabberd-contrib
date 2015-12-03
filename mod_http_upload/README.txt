@@ -2,28 +2,26 @@
 	mod_http_upload - HTTP File Upload (XEP-0363)
 
 	Author: Holger Weiss <holger@zedat.fu-berlin.de>
-	Requirements: ejabberd 13.06 or newer
+	Requirements: ejabberd 15.06, 15.07, or 15.09
+	Note: This module comes bundled with ejabberd 15.10 and newer
 
 
 	DESCRIPTION
 	-----------
 
-This module allows for requesting permissions to upload a file via HTTP.
-If the request is accepted, the client receives a URL to use for uploading
-the file and another URL from which that file can later be downloaded.
+This module allows for requesting permissions to upload a file via HTTP.  If
+the request is accepted, the client receives a URL to use for uploading the
+file and another URL from which that file can later be downloaded.
 
-PLEASE NOTE: This module implements an experimental protocol which may
-change at any time.  There are already suggestions for improvements, e.g.
-from ProcessOne:
-
-https://github.com/processone/ejabberd-saas-docs/blob/master/xmpp-specs/http-filetransfer/http-filetransfer.md
+Automatic quota management can be configured by also enabling
+mod_http_upload_quota.
 
 
 	CONFIGURATION
 	-------------
 
 In order to use this module, add configuration snippets such as the
-following to your ejabberd.yml file:
+following:
 
   listen:
     # [...]
@@ -35,11 +33,20 @@ following to your ejabberd.yml file:
       request_handlers:
         "": mod_http_upload
 
+  access:
+    # [...]
+    soft_upload_quota:
+      all: 1000 # MiB
+    hard_upload_quota:
+      all: 1100 # MiB
+
   modules:
     # [...]
     mod_http_upload:
       docroot: "/home/xmpp/upload"
       put_url: "https://@HOST@:5443"
+    mod_http_upload_quota:
+      max_days: 100
 
 The configurable mod_http_upload options are:
 
@@ -93,8 +100,7 @@ The configurable mod_http_upload options are:
 - docroot (default: "@HOME@/upload")
 
   Uploaded files are stored below the directory specified (as an absolute
-  path) with this option.  It is mandatory to specify either this option or
-  the 'service_url' option.  The keyword @HOME@ is replaced with the home
+  path) with this option.  The keyword @HOME@ is replaced with the home
   directory of the user running ejabberd.
 
 - put_url (default: "http://@HOST@:5444")
@@ -165,15 +171,42 @@ The configurable mod_http_upload options are:
   when that user is unregistered.  It must be set to 'false' if this is not
   desired.
 
+The configurable mod_http_upload_quota options are:
 
-	REMOVING OLD FILES
-	------------------
+- max_days (default: 'infinity')
 
-You might want to use cron(8) to remove uploaded files that are older than
-some number of days:
+  If a number larger than zero is specified, any files (and directories)
+  older than this number of days are removed from the subdirectories of the
+  'docroot' directory, once per day.  By default, this won't be done.
 
-0 1 * * * find /home/xmpp/upload -type f -ctime +365 -exec rm -f '{}' ';'
-0 2 * * * find /home/xmpp/upload -type d -exec rmdir '{}' ';' 2>/dev/null
+- access_hard_quota (default: 'hard_upload_quota')
 
-Note that /home/xmpp/upload must be replaced with your actual 'docroot'
-path, and 365 with the desired number of days.
+  This option defines which access rule is used to specify the "hard quota"
+  for the matching JIDs.  That rule must yield a positive number for any JID
+  that is supposed to have a quota limit.  This is the number of megabytes a
+  corresponding user may upload.  When this threshold is exceeded, ejabberd
+  deletes the oldest files uploaded by that user until their disk usage
+  equals or falls below the specified soft quota (see below).
+
+- access_soft_quota (default: 'soft_upload_quota')
+
+  This option defines which access rule is used to specify the "soft quota"
+  for the matching JIDs.  That rule must yield a positive number of
+  megabytes for any JID that is supposed to have a quota limit.  It is
+  recommended to make sure the soft quota will be smaller than the hard
+  quota.  See the description of the 'access_hard_quota' option for details.
+
+  NOTE: It's not necessary to specify the 'access_hard_quota' and
+  'access_soft_quota' options in order to use the quota feature.  You can
+  stick to the default names and just specify access rules such as the
+  following:
+
+  access:
+    # [...]
+    soft_upload_quota:
+      all: 400
+    hard_upload_quota:
+      all: 500
+
+  This sets a soft quota of 400 MiB and a hard quota of 500 MiB for all
+  users.
