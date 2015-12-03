@@ -17,7 +17,6 @@ ejabberd-mod-logsession_BUILD_PATH=mod_logsession/
 ejabberd-mod-mam-mnesia_BUILD_PATH=mod_mam_mnesia/
 ejabberd-mod-auth-http_BUILD_PATH=ejabberd_auth_http/
 ejabberd-mod-post-log_BUILD_PATH=mod_post_log/
-ejabberd-mod-http-upload_BUILD_PATH=mod_http_upload/
 
 %:
 	dh $@
