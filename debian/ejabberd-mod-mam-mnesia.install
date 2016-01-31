@@ -1,1 +1,1 @@
-mod_mam_mnesia/ebin/*.beam usr/lib/ejabberd/ebin
+mod_mam_mnesia/ebin/*.beam usr/lib/ejabberd-contrib/ebin

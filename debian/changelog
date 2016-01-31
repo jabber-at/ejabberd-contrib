@@ -2,6 +2,8 @@ ejabberd-modules (1:20160131-0.1) unstable; urgency=low
 
   * Version bump from upstream.
   * Fix for ejabberd-mod-rest.
+  * Install modules to /usr/lib/ejabberd-contrib, as ejabberd cannot find
+    /usr/lib/ejabberd.
 
  -- Mathias Ertl <mati@jabber.at>  Sun, 31 Jan 2016 11:38:06 +0100
 

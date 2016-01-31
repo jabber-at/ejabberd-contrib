@@ -1,12 +1,12 @@
 #!/bin/bash
 
-mod_dir=debian/$1/usr/lib/ejabberd/ebin/
+mod_dir=debian/$1/usr/lib/ejabberd-contrib/ebin/
 if [[ ! -d  $mod_dir ]]; then
 	echo "$1: Package does not install any modules."
 	exit 0
 fi
 
-mods=$(cd debian/$1/usr/lib/ejabberd/ebin/; ls *.beam | sed 's/.beam$//')
+mods=$(cd debian/$1/usr/lib/ejabberd-contrib/ebin/; ls *.beam | sed 's/.beam$//')
 
 echo '
 # Automatically added by dh_moduleupdate
