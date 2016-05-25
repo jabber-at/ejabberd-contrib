@@ -1,6 +1,7 @@
 ejabberd-modules (1:20160525-0.1) unstable; urgency=low
 
   * Version bump from upstream.
+  * Remove deprecated mod_mam_mnesia.
 
  -- Mathias Ertl <mati@jabber.at>  Wed, 25 May 2016 16:51:20 +0200
 

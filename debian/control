@@ -88,17 +88,6 @@ Description: Serve MUC logs on the web
  to allow your users to view the MUC logs.  It is a small modification
  of mod_http_fileserver, customized for log serving.
 
-Package: ejabberd-mod-mam-mnesia
-Replaces: ejabberd-mod-mam (<< 1:20150702)
-Breaks: ejabberd-mod-mam (<< 1:20150702)
-Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
-Description: Message Archive Management (XEP-0313) support
- This module implements Message Archive Management (XEP-0313) support.
- .
- XEP-0313 allows server-side storage of messages.
-
 Package: ejabberd-mod-auth-http
 Architecture: any
 Depends: ejabberd (>= 15.02), ${misc:Depends}
