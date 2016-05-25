@@ -105,7 +105,7 @@ start(Host, Opts) ->
 		       remove_user, 50),
     ejabberd_hooks:add(disco_sm_features, Host, ?MODULE,
 		       get_sm_features, 50),
-    IQDisc = gen_mod:get_opt(iqdisc, Opts, one_queue),
+    IQDisc = gen_mod:get_opt(iqdisc, Opts, fun gen_iq_handler:check_type/1, one_queue),
     gen_iq_handler:add_iq_handler(ejabberd_sm, Host,
 				  ?NS_PROFILE, ?MODULE, process_sm_iq, IQDisc).
 
@@ -161,7 +161,7 @@ process_sm_iq_set(LUser, LServer, SubEl, IQ) ->
 	  #xmlel{children = SubSubEls} = SubEl,
 	  ElsList = [El
 		     || #xmlel{name = Name} = El
-			    <- xml:remove_cdata(SubSubEls),
+			    <- fxml:remove_cdata(SubSubEls),
 			Name == <<"x">>],
 	  case ElsList of
 	    [XData] ->
@@ -279,7 +279,7 @@ filter_profile_fields(_StoredFields, [], ResFields) ->
 %% Copied from exmpp_xml.erl, then customized
 
 get_requested_fields(SubEl) ->
-    case xml:get_subtag(SubEl, <<"x">>) of
+    case fxml:get_subtag(SubEl, <<"x">>) of
       false -> [];
       XEl -> get_elements(XEl, <<"field">>)
     end.

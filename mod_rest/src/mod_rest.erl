@@ -64,9 +64,9 @@ process(Path, Request) ->
 %% Otherwise, it is considered an ejabberd command to execute.
 maybe_post_request(<<$<,_/binary>> = Data, Host, ClientIp) ->
     try
-	Stanza = {xmlel, _, _, _} = xml_stream:parse_element(Data),
-        From = jlib:string_to_jid(xml:get_tag_attr_s(<<"from">>, Stanza)),
-        To = jlib:string_to_jid(xml:get_tag_attr_s(<<"to">>, Stanza)),
+	Stanza = {xmlel, _, _, _} = fxml_stream:parse_element(Data),
+        From = jlib:string_to_jid(fxml:get_tag_attr_s(<<"from">>, Stanza)),
+        To = jlib:string_to_jid(fxml:get_tag_attr_s(<<"to">>, Stanza)),
 	allowed = check_stanza(Stanza, From, To, Host),
 	?INFO_MSG("Got valid request from ~s~nwith IP ~p~nto ~s:~n~p",
 		  [jlib:jid_to_string(From),
@@ -87,9 +87,10 @@ maybe_post_request(<<$<,_/binary>> = Data, Host, ClientIp) ->
     end;    
 maybe_post_request(Data, Host, _ClientIp) ->
     ?INFO_MSG("Data: ~p", [Data]),
-    Args = split_line(binary_to_list(Data)),
+    Args = split_line(unicode:characters_to_list(Data, utf8)),
+    Args2 = ensure_auth_is_provided(Args),
     AccessCommands = get_option_access(Host),
-    case ejabberd_ctl:process2(Args, AccessCommands) of
+    case ejabberd_ctl:process2(Args2, AccessCommands) of
 	{"", ?STATUS_SUCCESS} ->
 	    {200, [], integer_to_list(?STATUS_SUCCESS)};
 	{String, ?STATUS_SUCCESS} ->
@@ -99,6 +100,11 @@ maybe_post_request(Data, Host, _ClientIp) ->
 	{String, _Code} ->
 	    {200, [], String}
     end.
+
+ensure_auth_is_provided(["--auth", _, _, _ | _] = Args) ->
+    Args;
+ensure_auth_is_provided(Args) ->
+    ["--auth", "", "", "" | Args].
 
 %% This function throws an error if the module is not started in that VHost.
 try_get_option(Host, OptionName, DefaultValue) ->
