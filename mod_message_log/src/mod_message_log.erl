@@ -14,7 +14,8 @@
 %% gen_mod/supervisor callbacks.
 -export([start_link/1,
 	 start/2,
-	 stop/1]).
+	 stop/1,
+	 mod_opt_type/1]).
 
 %% gen_server callbacks.
 -export([init/1,
@@ -87,6 +88,13 @@ stop(Host) ->
 	  ok % We just run one process per node.
     end.
 
+-spec mod_opt_type(atom()) -> fun((term()) -> term()) | [atom()].
+
+mod_opt_type(filename) ->
+    fun iolist_to_binary/1;
+mod_opt_type(_) ->
+    [filename].
+
 %% -------------------------------------------------------------------
 %% gen_server callbacks.
 %% -------------------------------------------------------------------
@@ -96,7 +104,7 @@ stop(Host) ->
 init(Opts) ->
     process_flag(trap_exit, true),
     ejabberd_hooks:add(reopen_log_hook, ?MODULE, reopen_log, 42),
-    Filename = gen_mod:get_opt(filename, Opts, fun(V) -> V end,
+    Filename = gen_mod:get_opt(filename, Opts, fun iolist_to_binary/1,
 			       ?DEFAULT_FILENAME),
     {ok, IoDevice} = file:open(Filename, ?FILE_MODES),
     {ok, #state{filename = Filename, iodevice = IoDevice}}.
@@ -169,7 +177,7 @@ reopen_log() ->
 -spec log_packet(direction(), jid(), jid(), xmlel()) -> any().
 
 log_packet(Direction, From, To, #xmlel{name = <<"message">>} = Packet) ->
-    case xml:get_subtag(Packet, <<"body">>) of
+    case fxml:get_subtag(Packet, <<"body">>) of
       #xmlel{children = Body} when length(Body) > 0 ->
 	  Type = get_message_type(Packet),
 	  gen_server:cast(?PROCNAME, {message, Direction, From, To, Type});
@@ -188,7 +196,7 @@ log_packet(_Direction, _From, _To, _Packet) ->
 -spec get_message_type(xmlel()) -> binary().
 
 get_message_type(#xmlel{attrs = Attrs}) ->
-    case xml:get_attr_s(<<"type">>, Attrs) of
+    case fxml:get_attr_s(<<"type">>, Attrs) of
       <<"">> ->
 	  <<"normal">>;
       Type ->
@@ -198,8 +206,8 @@ get_message_type(#xmlel{attrs = Attrs}) ->
 -spec is_carbon(xmlel()) -> {true, direction()} | false.
 
 is_carbon(Packet) ->
-    {Direction, SubTag} = case {xml:get_subtag(Packet, <<"sent">>),
-				xml:get_subtag(Packet, <<"received">>)} of
+    {Direction, SubTag} = case {fxml:get_subtag(Packet, <<"sent">>),
+				fxml:get_subtag(Packet, <<"received">>)} of
 			    {false, false} ->
 				{false, false};
 			    {false, Tag} ->
@@ -210,7 +218,7 @@ is_carbon(Packet) ->
     F = fun(_, false) ->
 	       false;
 	   (Name, Tag) ->
-	       xml:get_subtag(Tag, Name)
+	       fxml:get_subtag(Tag, Name)
 	end,
     case lists:foldl(F, SubTag, [<<"forwarded">>, <<"message">>, <<"body">>]) of
       #xmlel{children = Body} when length(Body) > 0 ->
