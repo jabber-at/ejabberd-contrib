@@ -17,6 +17,8 @@ ejabberd-mod-webpresence_BUILD_PATH=mod_webpresence/
 ejabberd-mod-logsession_BUILD_PATH=mod_logsession/
 ejabberd-mod-auth-http_BUILD_PATH=ejabberd_auth_http/
 ejabberd-mod-post-log_BUILD_PATH=mod_post_log/
+ejabberd-mod-graphite_BUILD_PATH=mod_grafite/
+ejabberd-mod-pottymouth_BUILD_PATH=mod_pottymouth/
 
 %:
 	dh $@

@@ -104,3 +104,21 @@ Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
 Description: Log all messages to an HTTP API.
  This module implements logging of all messages sent (chat and groupchat) via
  an HTTP API.
+
+Package: ejabberd-mod-graphite
+Architecture: any
+Depends: ejabberd (>= 14.07), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_grafite
+Description: Gathers statistics and publishes via statsd/graphite.
+ This module implements logging to statsd/graphite.
+
+Package: ejabberd-mod-pottymouth
+Architecture: any
+Depends: ejabberd (>= 14.07), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_pottymouth
+Description: Filter XMPP messages against a blacklist.
+ This moduleallows individual whole words of a message to be filtered against a
+ blacklist. It allows multiple blacklists sharded by language. The internal
+ bloomfilter can support arbitrary blacklist sizes. Using a large list (say,
+ 87M terms) will slow down the initial server boot time (to about 15 minutes
+ respectively), but once loaded lookups are very speedy.
