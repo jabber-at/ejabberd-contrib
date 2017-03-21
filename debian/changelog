@@ -1,8 +1,8 @@
-ejabberd-modules (1:20170201-0.1) unstable; urgency=low
+ejabberd-modules (1:20170321-0.1) unstable; urgency=low
 
   * Version bump from upstream.
 
- -- Mathias Ertl <mati@jabber.at>  Wed, 01 Feb 2017 13:46:41 +0100
+ -- Mathias Ertl <mati@jabber.at>  Wed, 21 Mar 2017 13:46:41 +0100
 
 ejabberd-modules (1:20160807-0.1) unstable; urgency=low
 
