@@ -8,25 +8,35 @@ Homepage: http://www.ejabberd.im/ejabberd-contrib
 VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
 VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
 
+Package: ejabberd-contrib
+Architecture: all
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ${misc:Depends},
+ ejabberd (>=${ejabberd}),
+ ejabberd-mod-cron,
+ ejabberd-mod-log-chat,
+ ejabberd-mod-logsession,
+ ejabberd-mod-logxml,
+ ejabberd-mod-message-log,
+ ejabberd-mod-muc-log-http,
+ ejabberd-mod-post-log,
+ ejabberd-mod-pottymouth,
+ ejabberd-mod-rest,
+ ejabberd-mod-s2s-log,
+ ejabberd-mod-shcommands,
+ ejabberd-mod-statsdx,
+ ejabberd-mod-webpresence
+Description: user-contributed modules for ejabberd (metapackage)
+ This package depends on all available modules from ejabberd-contrib,
+ but doesn't do or add anything itself.
+ .
+ This is a pure metapackage
+
 Package: ejabberd-mod-s2s-log
 Architecture: any
 Depends: ejabberd (>= 1:14.12), ${misc:Depends}
 Description: Log XMPP s2s connections
  This module can be use to keep a track of other XMPP servers your server has
  been connected with.
-
-Package: ejabberd-mod-statsdx
-Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: Calculates and gathers statistics actively
- Measures several statistics. It provides a new section in ejabberd
- Web Admin and two ejabberd commands to view the information.
-
-Package: ejabberd-mod-webpresence
-Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: mod-webpresence for ejabberd-2.0.x
- This module allows users to display their presence on the web
 
 Package: ejabberd-mod-cron
 Architecture: any
@@ -122,3 +132,28 @@ Description: Filter XMPP messages against a blacklist.
  bloomfilter can support arbitrary blacklist sizes. Using a large list (say,
  87M terms) will slow down the initial server boot time (to about 15 minutes
  respectively), but once loaded lookups are very speedy.
+
+Package: ejabberd-mod-statsdx
+Architecture: any
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: calculates and gathers statistics actively
+ This module measures several statistics. It provides a new section in
+ ejabberd Web Admin and two ejabberd commands to view the information.
+ Simply activate the module in ejabberd.yml after installation, see the included
+ README.txt for further information.
+
+Package: ejabberd-mod-webpresence
+Architecture: any
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: allows any local ejabberd user to publish his presence information
+ This module allows any local user of the ejabberd server to publish his
+ presence information on the web.
+ This module is the successor of Igor Goryachev's mod_presence.
+ .
+ Allowed output methods are:
+  * icons (various themes available);
+  * status text;
+  * raw XML;
+  * avatar, stored in the user's vCard.
+ .
+ No web server, database, additional libraries or programs are required.
