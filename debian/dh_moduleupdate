@@ -1,16 +1,19 @@
-#!/bin/bash
+#!/bin/sh
 
-mod_dir=debian/$1/usr/lib/ejabberd-contrib/ebin/
-if [[ ! -d  $mod_dir ]]; then
+ARCH=$(dpkg-architecture -q DEB_TARGET_MULTIARCH)
+EJABBERDDIR=$(basename `find /usr/lib -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]"`)
+
+mod_dir="debian/$1/usr/lib/$ARCH/$EJABBERDDIR/ebin/"
+if [ ! -d  $mod_dir ]; then
 	echo "$1: Package does not install any modules."
 	exit 0
 fi
 
-mods=$(cd debian/$1/usr/lib/ejabberd-contrib/ebin/; ls *.beam | sed 's/.beam$//')
+mods=$(cd "debian/$1/usr/lib/$ARCH/$EJABBERDDIR/ebin/"; ls *.beam | sed 's/.beam$//')
 
 echo '
 # Automatically added by dh_moduleupdate
-ejabberdctl="su - ejabberd /usr/sbin/ejabberdctl"
+ejabberdctl="/usr/sbin/ejabberdctl"
 mods="'$mods'"
 
 if [ "$1" = "configure" ]; then
