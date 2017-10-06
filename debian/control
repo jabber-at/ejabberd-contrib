@@ -31,13 +31,13 @@ Description: user-contributed modules for ejabberd (metapackage)
  .
  This is a pure metapackage.
 
-Package: ejabberd-mod-auth-http
-Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
-Description: Authenticate against an external REST API.
- This module allows ejabberd to authenticate user accounts against an external
- REST API. This module is useful if you have a central user database you want
- to share with ejabberd.
+#Package: ejabberd-mod-auth-http
+#Architecture: any
+#Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+#Description: Authenticate against an external REST API.
+# This module allows ejabberd to authenticate user accounts against an external
+# REST API. This module is useful if you have a central user database you want
+# to share with ejabberd.
 
 Package: ejabberd-mod-cron
 Architecture: any
