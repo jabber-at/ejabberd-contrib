@@ -2,6 +2,7 @@ ejabberd-modules (1:20170321-0.1) unstable; urgency=low
 
   * Version bump from upstream.
   * Add ejabberd-contrib meta package.
+  * Add new modules: ejabberd-mod-shcommands.
   * Update descriptions for packages.
   * Add src.includes.patch to fix compilation.
   * Update Standards-Version to 4.0.0 (no changes needed).
