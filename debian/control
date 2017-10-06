@@ -2,9 +2,9 @@ Source: ejabberd-modules
 Section: net
 Priority: optional
 Maintainer: Mathias Ertl <mati@jabber.at>
-Build-Depends: erlang-base, erlang-tools, ejabberd (>= 15.04), debhelper (>= 9)
-Standards-Version: 3.9.1
-Homepage: http://www.ejabberd.im/ejabberd-contrib
+Build-Depends: debhelper (>= 9), erlang-base, erlang-dev, erlang-tools, ejabberd (>= 17.08), rebar (>= 2.6.0)
+Standards-Version: 4.0.0
+Homepage: https://github.com/processone/ejabberd-contrib
 VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
 VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
 
@@ -29,12 +29,11 @@ Description: user-contributed modules for ejabberd (metapackage)
  This package depends on all available modules from ejabberd-contrib,
  but doesn't do or add anything itself.
  .
- This is a pure metapackage
+ This is a pure metapackage.
 
 Package: ejabberd-mod-auth-http
 Architecture: any
-Depends: ejabberd (>= 15.02), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: Authenticate against an external REST API.
  This module allows ejabberd to authenticate user accounts against an external
  REST API. This module is useful if you have a central user database you want
@@ -42,34 +41,33 @@ Description: Authenticate against an external REST API.
 
 Package: ejabberd-mod-cron
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: execute scheduled commands
  This module allows advanced ejabberd administrators to schedule commands for
- periodic and automatic execution.
+ periodic and automatic execution. Each time a scheduled task finishes its
+ execution, a message is printed in the ejabberd log file.
 
 Package: ejabberd-mod-graphite
 Architecture: any
-Depends: ejabberd (>= 14.07), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_grafite
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: Gathers statistics and publishes via statsd/graphite.
  This module implements logging to statsd/graphite.
 
 Package: ejabberd-mod-log-chat
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: Log chat messages to text or html
- mod_log_chat is a ejabberd module aimed at logging chat messages in
- text files. mod_log_chat create one file per couple of chatters and
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: logs chat messages to text or html
+ mod_log_chat is an ejabberd module aimed at logging chat messages in
+ text files. mod_log_chat creates one file per couple of chatters and
  per day (it doesn't log muc messages, use mod_muc_log for this).
  .
  It can store messages in plain text or HTML format.
 
 Package: ejabberd-mod-logsession
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Homepage: http://www.ejabberd.im/mod_logsession
-Description: Log session connections to file
- This module is intended to log in a text file the session connections.
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: logs session connections to a text file
+ This module is intended to log the session connections in a text file.
  Right now it only logs the forbidden connection attempts and the
  failed authentication attempts.
  .
@@ -77,35 +75,40 @@ Description: Log session connections to file
 
 Package: ejabberd-mod-logxml
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Homepage: http://www.ejabberd.im/mod_logxml
-Description: Log XMPP packets to XML file
- This module sniffs all the XMPP traffic send and received by ejabberd,
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: logs XMPP packets to an XML file
+ This module sniffs all the XMPP traffic sent and received by ejabberd,
  both internally and externally transmitted. It logs the XMPP packets
- to a XML formatted file. It's possible to filter transmitted packets
+ to an XML formatted file. It's possible to filter transmitted packets
  by orientation, stanza and direction. It's possible to configure the
  file rotation rules and intervals.
 
 Package: ejabberd-mod-message-log
 Architecture: any
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: writes a line for each message to a log file
+ This module writes a line for each sent or received message to a log file.
+ Each line mentions the sender's JID and the recipient's JID, and also the
+ message type (e.g., "normal", "chat", or "groupchat").  Carbon copies are
+ marked as such.
 
 Package: ejabberd-mod-muc-log-http
 Architecture: any
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
-Homepage: http://www.ejabberd.im/mod_logxml
-Description: Serve MUC logs on the web
- This module serves the directory containing MUC logs already
- configured on mod_muc_log.  So, there's no need to setup a web server
- to allow your users to view the MUC logs.  It is a small modification
- of mod_http_fileserver, customized for log serving.
+Description: serves MUC logs on the web
+ This module serves the directory containing MUC logs already configured on
+ mod_muc_log. This way there is no need to set up a separate web server to
+ allow your users to view the MUC logs.  It is a small modification of
+ mod_http_fileserver, customized for log serving.
 
 Package: ejabberd-mod-post-log
 Architecture: any
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
-Description: Log all messages to an HTTP API.
+Description: logs all messages to an HTTP API
  This module implements logging of all messages sent (chat and groupchat) via
  an HTTP API.
+ Simply activate the module in ejabberd.yml after installation, see the included
+ README.txt for further information.
 
 Package: ejabberd-mod-pottymouth
 Architecture: any
@@ -120,7 +123,7 @@ Description: filter for ejabberd messages using blacklists
 Package: ejabberd-mod-rest
 Architecture: any
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
-Description: HTTP interface to POST stanzas into ejabberd
+Description: HTTP interface to POST arbitrary stanzas to ejabberd
  This is an ejabberd module that adds an HTTP handler that allows HTTP
  clients to literally post arbitrary message stanzas to ejabberd. Those
  stanzas then get shoved through ejabberd's router just like any other
