@@ -1,6 +1,7 @@
 ejabberd-modules (1:20170321-0.1) unstable; urgency=low
 
   * Version bump from upstream.
+  * Add src.includes.patch to fix compilation.
   * Add watch, README.Debian and README.source.
   * Update rules file.
   * Remove ejabberd-mod-webpresence.todo.

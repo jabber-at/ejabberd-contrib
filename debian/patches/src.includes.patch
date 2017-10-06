@@ -1,0 +1,97 @@
+Description: correct includes
+ This part of the code was moved into it's own project and was packaged
+ separately by me. To make the build process work, this small fix is
+ necessary.
+Author: Philipp Huebner <debalance@debian.org>
+
+Index: ejabberd-contrib/mod_log_chat/src/mod_log_chat.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_log_chat/src/mod_log_chat.erl
++++ ejabberd-contrib/mod_log_chat/src/mod_log_chat.erl
+@@ -23,7 +23,7 @@
+ -endif.
+ 
+ -include("logger.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ -define(PROCNAME, ?MODULE).
+ -define(DEFAULT_PATH, ".").
+Index: ejabberd-contrib/mod_logsession/src/mod_logsession.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_logsession/src/mod_logsession.erl
++++ ejabberd-contrib/mod_logsession/src/mod_logsession.erl
+@@ -39,7 +39,7 @@
+ 	]).
+ 
+ -include("ejabberd.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ -include("ejabberd_commands.hrl").
+ 
+ -define(PROCNAME, ejabberd_logsession).
+Index: ejabberd-contrib/mod_logxml/src/mod_logxml.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_logxml/src/mod_logxml.erl
++++ ejabberd-contrib/mod_logxml/src/mod_logxml.erl
+@@ -15,7 +15,7 @@
+ 	 send_packet/1, receive_packet/1]).
+ 
+ -include("ejabberd.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ -define(PROCNAME, ejabberd_mod_logxml).
+ 
+Index: ejabberd-contrib/mod_post_log/src/mod_post_log.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_post_log/src/mod_post_log.erl
++++ ejabberd-contrib/mod_post_log/src/mod_post_log.erl
+@@ -21,7 +21,7 @@
+          post_result/1]).
+ 
+ -include("ejabberd.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ start(Host, _Opts) ->
+     ok = case inets:start() of
+Index: ejabberd-contrib/mod_rest/src/mod_rest.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_rest/src/mod_rest.erl
++++ ejabberd-contrib/mod_rest/src/mod_rest.erl
+@@ -37,7 +37,7 @@
+ -include("logger.hrl").
+ -include("ejabberd_http.hrl").
+ -include("ejabberd_ctl.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ start(_Host, _Opts) ->
+     ?DEBUG("Starting: ~p ~p", [_Host, _Opts]),
+Index: ejabberd-contrib/mod_muc_log_http/src/mod_muc_log_http.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_muc_log_http/src/mod_muc_log_http.erl
++++ ejabberd-contrib/mod_muc_log_http/src/mod_muc_log_http.erl
+@@ -17,7 +17,7 @@
+ 	]).
+ 
+ -include("ejabberd.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ -include("ejabberd_http.hrl").
+ -include("mod_muc_room.hrl").
+ -include("logger.hrl").
+Index: ejabberd-contrib/mod_pottymouth/src/mod_pottymouth.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_pottymouth/src/mod_pottymouth.erl
++++ ejabberd-contrib/mod_pottymouth/src/mod_pottymouth.erl
+@@ -4,7 +4,7 @@
+ 
+ -include("ejabberd.hrl").
+ -include("logger.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ -export([
+   start/2,
