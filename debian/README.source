@@ -1,0 +1,23 @@
+ejabberd-contrib for Debian
+---------------------------
+
+This source package contains, builds and installs all modules from
+https://github.com/processone/ejabberd-contrib/
+that are not marked as broken in README-broken.md, with one exception:
+ * ejabberd_auth_http has additional dependencies which are currently not
+   available in Debian and for that reason is currently not being built.
+
+To get a dfsg clean source tarball, the following directories were removed
+from the original snapshot tarball:
+     atom_pubsub
+     ejabberd_auth_http/deps
+     extra
+     ircd
+     mod_archive
+     mod_openid
+     mod_profile
+
+The complete upstream code can be retrieved from the github repository
+mentioned above.
+
+ -- Philipp Huebner <debalance@debian.org>  Sun, 04 Oct 2015 09:00:00 +0200

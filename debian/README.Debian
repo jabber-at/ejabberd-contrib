@@ -1,0 +1,13 @@
+ejabberd-contrib for Debian
+---------------------------
+
+To enable and configure the modules, check out
+
+/usr/share/doc/ejabberd-mod-<modulename>/conf/*
+
+and copy the mod_*.yml files to /etc/ejabberd/modules.d/
+
+Make sure to edit them to your needs, then restart
+ejabberd for the changes to take effect.
+
+ -- Philipp Huebner <debalance@debian.org>  Mon, 18 Jan 2016 14:46:23 +0100
