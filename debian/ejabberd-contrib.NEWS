@@ -1,0 +1,7 @@
+ejabberd-contrib (0.2016.03.24~dfsg0-1) unstable; urgency=high
+
+  Attention: mod_mam_mnesia is now deprecated, if you have been using that
+  module make sure to read /usr/share/doc/ejabberd-mod-mam-mnesia/README.md
+  on how to migrate to mod_mam (part of ejabberd itself).
+
+ -- Philipp Huebner <debalance@debian.org>  Fri, 25 Mar 2016 11:13:42 +0100
