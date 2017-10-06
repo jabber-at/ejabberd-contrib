@@ -91,7 +91,7 @@ Architecture: any
 
 Package: ejabberd-mod-muc-log-http
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Homepage: http://www.ejabberd.im/mod_logxml
 Description: Serve MUC logs on the web
  This module serves the directory containing MUC logs already
@@ -101,7 +101,7 @@ Description: Serve MUC logs on the web
 
 Package: ejabberd-mod-post-log
 Architecture: any
-Depends: ejabberd (>= 14.07), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
 Description: Log all messages to an HTTP API.
  This module implements logging of all messages sent (chat and groupchat) via
@@ -109,18 +109,17 @@ Description: Log all messages to an HTTP API.
 
 Package: ejabberd-mod-pottymouth
 Architecture: any
-Depends: ejabberd (>= 14.07), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_pottymouth
-Description: Filter XMPP messages against a blacklist.
- This moduleallows individual whole words of a message to be filtered against a
- blacklist. It allows multiple blacklists sharded by language. The internal
- bloomfilter can support arbitrary blacklist sizes. Using a large list (say,
- 87M terms) will slow down the initial server boot time (to about 15 minutes
- respectively), but once loaded lookups are very speedy.
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: filter for ejabberd messages using blacklists
+ The 'mod_pottymouth' ejabberd module aims to fill the void left by 'mod_shit'
+ which has disappeared from the net. It allows individual whole words of a
+ message to be filtered against a blacklist. It allows multiple blacklists
+ sharded by language. To make use of this module the client must add the
+ xml:lang attribute to the message xml.
 
 Package: ejabberd-mod-rest
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: HTTP interface to POST stanzas into ejabberd
  This is an ejabberd module that adds an HTTP handler that allows HTTP
  clients to literally post arbitrary message stanzas to ejabberd. Those
@@ -131,10 +130,12 @@ Description: HTTP interface to POST stanzas into ejabberd
 
 Package: ejabberd-mod-s2s-log
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: Log XMPP s2s connections
- This module can be use to keep a track of other XMPP servers your server has
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
+Description: logs XMPP s2s connections
+ This module can be used to keep a track of other XMPP servers your server has
  been connected with.
+ Simply activate the module in ejabberd.yml after installation, see the included
+ README.txt for further information.
 
 Package: ejabberd-mod-shcommands
 Architecture: any
