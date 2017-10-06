@@ -1,18 +1,106 @@
-This package was debianized by Mathias Ertl <apt-repository@fsinf.at> on
-Sun, 24 Oct 2010 14:03:23 +0100.
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: ejabberd-contrib
+Source: https://github.com/processone/ejabberd-contrib
 
-Upstream Author: Badlop, et al.
+Files: *
+Copyright: 2002-2016 ProcessOne
+License: GPL-2.0+
 
-This software is Copyright (c) 2002-2005 Badlop, et al.
+Files: debian/*
+Copyright: 2014-2016 Philipp Huebner <debalance@debian.org>
+           2010-2016 Mathias Ertl <mati@jabber.at>
+License: GPL-2.0+
 
-You are free to distribute this software under the terms of
-the GNU General Public License as published by the
-Free Software Foundation; either version 2, or (at your option) any
-later version.
+Files: ejabberd_auth_http/*
+Copyright: Piotr Nosek <piotr.nosek@erlang-solutions.com>
+License: GPL-2.0+
 
-On Debian systems, the complete text of the GNU General Public
-License can be found in the file `/usr/share/common-licenses/GPL'.
+Files: mod_cron/*
+Copyright: Badlop <badlop@process-one.net>
+License: GPL-2.0+
 
-As a special exception, the author gives permission to link this program
-with the OpenSSL library and distribute the resulting binary.
+Files: mod_log_chat/*
+Copyright: Jérôme Sautret <jerome.sautret@process-one.net 
+License: GPL-2.0+
 
+Files: mod_logsession/*
+Copyright: Badlop <badlop@process-one.net>
+License: GPL-2.0+
+
+Files: mod_logxml/*
+Copyright: Badlop <badlop@process-one.net>
+License: GPL-2.0+
+
+Files: mod_mam_mnesia/*
+Copyright: Holger Weiss <holger@zedat.fu-berlin.de>
+License: GPL-2.0+
+
+Files: mod_message_log/*
+Copyright: Holger Weiss <holger@zedat.fu-berlin.de>
+License: GPL-2.0+
+
+Files: mod_muc_log_http/*
+Copyright: Badlop <badlop@process-one.net>
+License: GPL-2.0+
+
+Files: mod_post_log/*
+Copyright: Tim Stewart <tim@stoo.org>
+License: GPL-2.0+
+
+Files: mod_pottymouth/*
+Copyright: Tom Quackenbush <tom@madglory.com>
+License: Apache-2.0
+
+Files: mod_rest/*
+Copyright: Nolan Eakins <sneakin@semanticgap.com>
+License: GPL-2.0+
+
+Files: mod_s2s_log/*
+Copyright: Mickael Remond <mremond@process-one.net>
+License: GPL-2.0+
+
+Files: mod_shcommands/*
+Copyright: Badlop <badlop@process-one.net>
+License: GPL-2.0+
+
+Files: mod_statsdx/*
+Copyright: Badlop <badlop@process-one.net>
+License: GPL-2.0+
+
+Files: mod_webpresence/*
+Copyright: Igor Goryachev <igor@goryachev.org>
+License: GPL-2.0+
+
+License: GPL-2.0+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+License: Apache-2.0
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ .
+ http://www.apache.org/licenses/LICENSE-2.0
+ .
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ .
+ On Debian systems, the full text of the Apache License version 2.0
+ can be found in the file
+ `/usr/share/common-licenses/Apache-2.0'.

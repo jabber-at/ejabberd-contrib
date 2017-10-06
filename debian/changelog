@@ -7,6 +7,7 @@ ejabberd-modules (1:20170321-0.1) unstable; urgency=low
   * Remove ejabberd-mod-webpresence.todo.
   * Remove *.docs files, they are now installed by debian/rules.
   * Remove redundant .install files.
+  * Update copyright file.
 
  -- Mathias Ertl <mati@jabber.at>  Fri, 06 Oct 2017 13:39:54 +0200
 
