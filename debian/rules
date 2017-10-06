@@ -1,45 +1,60 @@
 #!/usr/bin/make -f
+DH_VERBOSE = 1
 
-BIN_PACKAGES=$(shell grep ^Package: debian/control  | sed 's/^Package: //')
+include /usr/share/dpkg/default.mk
+
+BIN_PACKAGES=$(shell grep ^Package: debian/control  | sed 's/^Package: //' | grep -v ejabberd-contrib)
 EJABBERDDIR=$(shell basename `find /usr/lib -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]"`)
+EJABBERDVER=$(shell dpkg-query --show --showformat '$${Version;-10}' ejabberd | cut -d '-' -f 1)
 
-ejabberd-mod-admin-extra_BUILD_PATH=mod_admin_extra/
+ejabberd-mod-auth-http_BUILD_PATH=ejabberd_auth_http/
 ejabberd-mod-cron_BUILD_PATH=mod_cron/
+ejabberd-mod-graphite_BUILD_PATH=mod_grafite/
 ejabberd-mod-log-chat_BUILD_PATH=mod_log_chat/
+ejabberd-mod-logsession_BUILD_PATH=mod_logsession/
 ejabberd-mod-logxml_BUILD_PATH=mod_logxml/
-ejabberd-mod-muc-admin_BUILD_PATH=mod_muc_admin/
+ejabberd-mod-message-log_BUILD_PATH=mod_message_log/
 ejabberd-mod-muc-log-http_BUILD_PATH=mod_muc_log_http/
-ejabberd-mod-register-web_BUILD_PATH=mod_register_web/
+ejabberd-mod-post-log_BUILD_PATH=mod_post_log/
+ejabberd-mod-pottymouth_BUILD_PATH=mod_pottymouth/
 ejabberd-mod-rest_BUILD_PATH=mod_rest/
 ejabberd-mod-s2s-log_BUILD_PATH=mod_s2s_log/
+ejabberd-mod-shcommands_BUILD_PATH=mod_shcommands/
 ejabberd-mod-statsdx_BUILD_PATH=mod_statsdx/
 ejabberd-mod-webpresence_BUILD_PATH=mod_webpresence/
-ejabberd-mod-logsession_BUILD_PATH=mod_logsession/
-ejabberd-mod-auth-http_BUILD_PATH=ejabberd_auth_http/
-ejabberd-mod-post-log_BUILD_PATH=mod_post_log/
-ejabberd-mod-graphite_BUILD_PATH=mod_grafite/
-ejabberd-mod-pottymouth_BUILD_PATH=mod_pottymouth/
 
 %:
 	dh $@
 
-build-%:
-	rm -f ejabberd-dev/ebin/*.beam
-	mkdir -p ${$*_BUILD_PATH}ebin
-	cd ${$*_BUILD_PATH} && erlc -o ebin -I include -I /usr/lib/$(EJABBERDDIR)/include \
-	    -DLAGER \
-	    src/*.erl
+compile-%:
+	mkdir ${$*_BUILD_PATH}ebin
+	cd ${$*_BUILD_PATH} && erlc -o ebin -I /usr/lib/$(DEB_TARGET_MULTIARCH)/$(EJABBERDDIR)/include -DLAGER \
+		-pa /usr/lib/$(DEB_TARGET_MULTIARCH)/$(EJABBERDDIR)/ebin/ src/*.erl
 
-override_dh_installchangelogs:
-	dh_installchangelogs
-	dh_installchangelogs -pejabberd-mod-logxml mod_logxml/ChangeLog
-	dh_installchangelogs -pejabberd-mod-s2s-log mod_s2s_log/ChangeLog
-	dh_installchangelogs -pejabberd-mod-statsdx mod_statsdx/ChangeLog
+override_dh_auto_build: $(BIN_PACKAGES:%=compile-%)
 
-override_dh_auto_build: $(BIN_PACKAGES:%=build-%)
-
-update-init-%:
+module-install-%:
+	mkdir -p debian/$*/usr/lib/$(DEB_TARGET_MULTIARCH)/$(EJABBERDDIR)/ebin
+	mkdir -p debian/$*/usr/share/doc/$*
+	mv -v ${$*_BUILD_PATH}ebin/*.beam debian/$*/usr/lib/$(DEB_TARGET_MULTIARCH)/$(EJABBERDDIR)/ebin/
 	debian/dh_moduleupdate $*
+	if [ -f ${$*_BUILD_PATH}ChangeLog ]; then cp ${$*_BUILD_PATH}ChangeLog debian/$*/usr/share/doc/$*/changelog; fi
+	if [ -d ${$*_BUILD_PATH}conf ]; then cp -a ${$*_BUILD_PATH}conf debian/$*/usr/share/doc/$*/; fi
+	if [ -f ${$*_BUILD_PATH}README.* ]; then cp -v ${$*_BUILD_PATH}README.* debian/$*/usr/share/doc/$*/; fi
+	if [ -f ${$*_BUILD_PATH}TODO* ]; then cp -v ${$*_BUILD_PATH}TODO* debian/$*/usr/share/doc/$*/; fi
 
-override_dh_installinit: $(BIN_PACKAGES:%=update-init-%)
-	dh_installinit
+override_dh_auto_install: $(BIN_PACKAGES:%=module-install-%)
+	echo "ejabberd=$(EJABBERDVER)" > $(CURDIR)/debian/substvars
+	erlang-depends
+	dh_auto_install
+
+override_dh_gencontrol:
+	dh_gencontrol -- -T$(CURDIR)/debian/substvars
+
+override_dh_installdeb:
+	dh_installdeb
+	rm -f debian/ejabberd-contrib/DEBIAN/postinst
+
+override_dh_auto_clean:
+	rm -rf */ebin debian/substvars
+	dh_auto_clean
