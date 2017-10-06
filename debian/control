@@ -31,12 +31,14 @@ Description: user-contributed modules for ejabberd (metapackage)
  .
  This is a pure metapackage
 
-Package: ejabberd-mod-s2s-log
+Package: ejabberd-mod-auth-http
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: Log XMPP s2s connections
- This module can be use to keep a track of other XMPP servers your server has
- been connected with.
+Depends: ejabberd (>= 15.02), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
+Description: Authenticate against an external REST API.
+ This module allows ejabberd to authenticate user accounts against an external
+ REST API. This module is useful if you have a central user database you want
+ to share with ejabberd.
 
 Package: ejabberd-mod-cron
 Architecture: any
@@ -45,16 +47,12 @@ Description: execute scheduled commands
  This module allows advanced ejabberd administrators to schedule commands for
  periodic and automatic execution.
 
-Package: ejabberd-mod-rest
+Package: ejabberd-mod-graphite
 Architecture: any
-Depends: ejabberd (>= 1:14.12), ${misc:Depends}
-Description: HTTP interface to POST stanzas into ejabberd
- This is an ejabberd module that adds an HTTP handler that allows HTTP
- clients to literally post arbitrary message stanzas to ejabberd. Those
- stanzas then get shoved through ejabberd's router just like any other
- stanza.
- .
- This module can also be used as a frontend to execute ejabberd commands.
+Depends: ejabberd (>= 14.07), ${misc:Depends}
+Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_grafite
+Description: Gathers statistics and publishes via statsd/graphite.
+ This module implements logging to statsd/graphite.
 
 Package: ejabberd-mod-log-chat
 Architecture: any
@@ -88,6 +86,9 @@ Description: Log XMPP packets to XML file
  by orientation, stanza and direction. It's possible to configure the
  file rotation rules and intervals.
 
+Package: ejabberd-mod-message-log
+Architecture: any
+
 Package: ejabberd-mod-muc-log-http
 Architecture: any
 Depends: ejabberd (>= 1:14.12), ${misc:Depends}
@@ -98,15 +99,6 @@ Description: Serve MUC logs on the web
  to allow your users to view the MUC logs.  It is a small modification
  of mod_http_fileserver, customized for log serving.
 
-Package: ejabberd-mod-auth-http
-Architecture: any
-Depends: ejabberd (>= 15.02), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
-Description: Authenticate against an external REST API.
- This module allows ejabberd to authenticate user accounts against an external
- REST API. This module is useful if you have a central user database you want
- to share with ejabberd.
-
 Package: ejabberd-mod-post-log
 Architecture: any
 Depends: ejabberd (>= 14.07), ${misc:Depends}
@@ -114,13 +106,6 @@ Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_mam
 Description: Log all messages to an HTTP API.
  This module implements logging of all messages sent (chat and groupchat) via
  an HTTP API.
-
-Package: ejabberd-mod-graphite
-Architecture: any
-Depends: ejabberd (>= 14.07), ${misc:Depends}
-Homepage: https://github.com/processone/ejabberd-contrib/tree/master/mod_grafite
-Description: Gathers statistics and publishes via statsd/graphite.
- This module implements logging to statsd/graphite.
 
 Package: ejabberd-mod-pottymouth
 Architecture: any
@@ -132,6 +117,24 @@ Description: Filter XMPP messages against a blacklist.
  bloomfilter can support arbitrary blacklist sizes. Using a large list (say,
  87M terms) will slow down the initial server boot time (to about 15 minutes
  respectively), but once loaded lookups are very speedy.
+
+Package: ejabberd-mod-rest
+Architecture: any
+Depends: ejabberd (>= 1:14.12), ${misc:Depends}
+Description: HTTP interface to POST stanzas into ejabberd
+ This is an ejabberd module that adds an HTTP handler that allows HTTP
+ clients to literally post arbitrary message stanzas to ejabberd. Those
+ stanzas then get shoved through ejabberd's router just like any other
+ stanza.
+ .
+ This module can also be used as a frontend to execute ejabberd commands.
+
+Package: ejabberd-mod-s2s-log
+Architecture: any
+Depends: ejabberd (>= 1:14.12), ${misc:Depends}
+Description: Log XMPP s2s connections
+ This module can be use to keep a track of other XMPP servers your server has
+ been connected with.
 
 Package: ejabberd-mod-shcommands
 Architecture: any
