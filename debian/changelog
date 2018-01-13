@@ -1,6 +1,7 @@
 ejabberd-modules (1:20180113-0.1) unstable; urgency=low
 
   * Version bump from upstream.
+  * Update Standards-Version to 4.1.3 (no changes needed).
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 13 Jan 2018 22:17:37 +0100
 

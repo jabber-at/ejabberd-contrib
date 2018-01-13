@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Mathias Ertl <mati@jabber.at>
 Build-Depends: debhelper (>= 9), erlang-base, erlang-dev, erlang-tools, ejabberd (>= 17.08), rebar (>= 2.6.0)
-Standards-Version: 4.0.0
+Standards-Version: 4.1.3
 Homepage: https://github.com/processone/ejabberd-contrib
 VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
 VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
