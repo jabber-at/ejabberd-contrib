@@ -108,3 +108,29 @@ Index: ejabberd-contrib/mod_statsdx/src/mod_statsdx.erl
  -include("logger.hrl").
  -include("mod_roster.hrl").
  -include("ejabberd_http.hrl").
+Index: ejabberd-contrib/mod_message_log/src/mod_message_log.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_message_log/src/mod_message_log.erl
++++ ejabberd-contrib/mod_message_log/src/mod_message_log.erl
+@@ -50,7 +50,7 @@
+ 	 log_packet_offline/1,
+ 	 reopen_log/0]).
+ 
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ -define(DEFAULT_FILENAME, <<"message.log">>).
+ -define(FILE_MODES, [append, raw]).
+Index: ejabberd-contrib/mod_webpresence/src/mod_webpresence.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_webpresence/src/mod_webpresence.erl
++++ ejabberd-contrib/mod_webpresence/src/mod_webpresence.erl
+@@ -32,7 +32,7 @@
+ -export([start_link/0]).
+ 
+ -include("ejabberd.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ -include("logger.hrl").
+ -include("ejabberd_web_admin.hrl").
+ -include("ejabberd_http.hrl").
