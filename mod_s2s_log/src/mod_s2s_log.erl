@@ -3,8 +3,6 @@
 %%% Author  : Mickael Remond <mremond@process-one.net>
 %%% Purpose : Log all s2s connections in a file
 %%% Created :  14 Mar 2008 by Mickael Remond <mremond@process-one.net>
-%%% Usage   : Add the following line in modules section of ejabberd.cfg:
-%%%              {mod_s2s_log, [{filename, "/path/to/s2s.log"}]}
 %%%
 %%%
 %%% ejabberd, Copyright (C) 2002-2008   ProcessOne
@@ -18,7 +16,7 @@
 %%% but WITHOUT ANY WARRANTY; without even the implied warranty of
 %%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 %%% General Public License for more details.
-%%%                         
+%%%
 %%% You should have received a copy of the GNU General Public License along
 %%% with this program; if not, write to the Free Software Foundation, Inc.,
 %%% 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -27,8 +25,6 @@
 -module(mod_s2s_log).
 -author('mremond@process-one.net').
 
-%% TODO: Support reopen log event
-
 -behaviour(gen_mod).
 
 %% API:
@@ -36,7 +32,8 @@
          init/1,
 	 stop/1,
 	 depends/2,
-	 mod_opt_type/1]).
+	 mod_opt_type/1,
+	 mod_options/1]).
 %% Hooks:
 -export([reopen_log/0,
 	 s2s_out_auth/2,
@@ -118,9 +115,10 @@ depends(_, _) ->
     [].
 
 mod_opt_type(filename) ->
-    fun iolist_to_binary/1;
-mod_opt_type(_) ->
-    [filename].
+    fun iolist_to_binary/1.
+
+mod_options(_Host) ->
+    [{filename, ?DEFAULT_FILENAME}].
 
 %% ---
 %% Internal functions
