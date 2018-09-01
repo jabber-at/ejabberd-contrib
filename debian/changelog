@@ -4,6 +4,7 @@ ejabberd-modules (1:20180821-0.1) unstable; urgency=low
   * Added debian/upstream/metadata
   * Updated Standards-Version: 4.1.5 (no changes needed)
   * Make binary Depends on ejabberd strictly "="
+  * Switched to debhelper 11
   * Use secure copyright format uri in debian/copyright
   * Updated years in debian/copyright
 
