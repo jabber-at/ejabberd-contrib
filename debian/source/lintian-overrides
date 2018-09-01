@@ -1,3 +1,5 @@
-source: maintainer-upload-has-incorrect-version-number
-ancient-autotools-helper-file bfile/config/config.sub 2002-07-03
-ancient-autotools-helper-file bfile/config/config.guess 2002-07-23
+ejabberd-contrib source: ancient-autotools-helper-file bfile/config/config.guess 2002-07-23
+ejabberd-contrib source: ancient-autotools-helper-file bfile/config/config.sub 2002-07-03
+ejabberd-contrib source: debian-watch-does-not-check-gpg-signature
+ejabberd-contrib source: maintainer-upload-has-incorrect-version-number
+ejabberd-contrib source: testsuite-autopkgtest-missing
