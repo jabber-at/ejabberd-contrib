@@ -4,8 +4,8 @@ DH_VERBOSE = 1
 include /usr/share/dpkg/default.mk
 
 BIN_PACKAGES=$(shell grep ^Package: debian/control  | sed 's/^Package: //' | grep -v ejabberd-contrib)
-EJABBERDDIR=$(shell basename `find /usr/lib -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]"`)
-EJABBERDVER=$(shell dpkg-query --show --showformat '$${Version;-10}' ejabberd | cut -d '-' -f 1)
+EJABBERDDIR=$(shell basename `find /usr/lib -maxdepth 2 -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]-*"`)
+EJABBERDVER=$(shell dpkg-query --show --showformat '$${Version;-10}' ejabberd)
 
 ejabberd-mod-cron_BUILD_PATH=mod_cron/
 ejabberd-mod-graphite_BUILD_PATH=mod_grafite/
