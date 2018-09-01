@@ -1,4 +1,4 @@
-Source: ejabberd-modules
+Source: ejabberd-contrib
 Section: net
 Priority: optional
 Maintainer: Mathias Ertl <mati@jabber.at>

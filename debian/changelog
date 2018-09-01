@@ -1,4 +1,4 @@
-ejabberd-modules (1:20180821-0.1) unstable; urgency=low
+ejabberd-contrib (1:20180821-0.1) unstable; urgency=low
 
   * New upstream version 1:20180821-0.1
   * Added debian/upstream/metadata
@@ -8,7 +8,7 @@ ejabberd-modules (1:20180821-0.1) unstable; urgency=low
   * Use secure copyright format uri in debian/copyright
   * Updated years in debian/copyright
   * Set Orig-Maintainer: Ejabberd Packaging Team <ejabberd@deb.at>
-
+  * Rename source package to ejabberd-contrib in line with upstream
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 01 Sep 2018 13:04:59 +0200
 
