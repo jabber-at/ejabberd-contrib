@@ -3,3 +3,4 @@ ejabberd-contrib source: ancient-autotools-helper-file bfile/config/config.sub 2
 ejabberd-contrib source: debian-watch-does-not-check-gpg-signature
 ejabberd-contrib source: maintainer-upload-has-incorrect-version-number
 ejabberd-contrib source: testsuite-autopkgtest-missing
+ejabberd-contrib source: unknown-field-in-dsc orig-maintainer
