@@ -39,7 +39,7 @@ module-install-%:
 	mv -v ${$*_BUILD_PATH}ebin/*.beam debian/$*/usr/lib/$(DEB_TARGET_MULTIARCH)/$(EJABBERDDIR)/ebin/
 	debian/dh_moduleupdate $*
 	if [ -f ${$*_BUILD_PATH}ChangeLog ]; then cp ${$*_BUILD_PATH}ChangeLog debian/$*/usr/share/doc/$*/changelog; fi
-	if [ -d ${$*_BUILD_PATH}conf ]; then cp -a ${$*_BUILD_PATH}conf debian/$*/usr/share/doc/$*/; fi
+	if [ -d ${$*_BUILD_PATH}conf ];	then cp -a ${$*_BUILD_PATH}conf debian/$*/usr/share/doc/$*/; fi
 	if [ -f ${$*_BUILD_PATH}README.* ]; then cp -v ${$*_BUILD_PATH}README.* debian/$*/usr/share/doc/$*/; fi
 	if [ -f ${$*_BUILD_PATH}TODO* ]; then cp -v ${$*_BUILD_PATH}TODO* debian/$*/usr/share/doc/$*/; fi
 
