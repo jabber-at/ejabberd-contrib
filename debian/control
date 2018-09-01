@@ -2,6 +2,7 @@ Source: ejabberd-modules
 Section: net
 Priority: optional
 Maintainer: Mathias Ertl <mati@jabber.at>
+XSBC-Orig-Maintainer: Ejabberd Packaging Team <ejabberd@deb.at>
 Build-Depends: debhelper (>= 11~), erlang-base, erlang-dev, erlang-tools, ejabberd (>= 18.04-2~), rebar (>= 2.6.0)
 Standards-Version: 4.1.5
 Homepage: https://github.com/processone/ejabberd-contrib

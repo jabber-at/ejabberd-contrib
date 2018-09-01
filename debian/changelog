@@ -7,6 +7,7 @@ ejabberd-modules (1:20180821-0.1) unstable; urgency=low
   * Switched to debhelper 11
   * Use secure copyright format uri in debian/copyright
   * Updated years in debian/copyright
+  * Set Orig-Maintainer: Ejabberd Packaging Team <ejabberd@deb.at>
 
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 01 Sep 2018 13:04:59 +0200
