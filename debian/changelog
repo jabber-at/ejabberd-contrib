@@ -3,6 +3,7 @@ ejabberd-modules (1:20180821-0.1) unstable; urgency=low
   * New upstream version 1:20180821-0.1
   * Added debian/upstream/metadata
   * Use secure copyright format uri in debian/copyright
+  * Updated years in debian/copyright
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 01 Sep 2018 13:04:59 +0200
 
