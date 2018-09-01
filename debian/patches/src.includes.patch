@@ -177,9 +177,14 @@ Index: ejabberd-contrib/mod_cron/src/mod_cron.erl
 ===================================================================
 --- ejabberd-contrib.orig/mod_cron/src/mod_cron.erl
 +++ ejabberd-contrib/mod_cron/src/mod_cron.erl
-@@ -24,7 +24,7 @@
- -include("ejabberd_http.hrl").
- -include("ejabberd_web_admin.hrl").
+@@ -21,10 +21,10 @@
+ 	 stop/1]).
+ 
+ -include("ejabberd_commands.hrl").
+--include("ejabberd_http.hrl").
+--include("ejabberd_web_admin.hrl").
++-include("ejabberd/include/ejabberd_http.hrl").
++-include("ejabberd-18.06/include/ejabberd_web_admin.hrl").
  -include("logger.hrl").
 --include("xmpp.hrl").
 +-include_lib("p1_xmpp/include/xmpp.hrl").
