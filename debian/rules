@@ -7,7 +7,6 @@ BIN_PACKAGES=$(shell grep ^Package: debian/control  | sed 's/^Package: //' | gre
 EJABBERDDIR=$(shell basename `find /usr/lib -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]"`)
 EJABBERDVER=$(shell dpkg-query --show --showformat '$${Version;-10}' ejabberd | cut -d '-' -f 1)
 
-ejabberd-mod-auth-http_BUILD_PATH=ejabberd_auth_http/
 ejabberd-mod-cron_BUILD_PATH=mod_cron/
 ejabberd-mod-graphite_BUILD_PATH=mod_grafite/
 ejabberd-mod-log-chat_BUILD_PATH=mod_log_chat/
