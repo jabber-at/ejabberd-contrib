@@ -1,3 +1,10 @@
+ejabberd-contrib (1:20180821-0.2) unstable; urgency=low
+
+  * Fix exact dependency for ejabberd.
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 08 Sep 2018 11:26:05 +0200
+
+
 ejabberd-contrib (1:20180821-0.1) unstable; urgency=low
 
   * New upstream version 1:20180821-0.1
