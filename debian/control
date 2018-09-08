@@ -3,7 +3,7 @@ Section: net
 Priority: optional
 Maintainer: Mathias Ertl <mati@jabber.at>
 XSBC-Orig-Maintainer: Ejabberd Packaging Team <ejabberd@deb.at>
-Build-Depends: debhelper (>= 11~), erlang-base, erlang-dev, erlang-tools, ejabberd (>= 18.04-2~), rebar (>= 2.6.0)
+Build-Depends: debhelper (>= 11~), erlang-base, erlang-dev, erlang-tools, ejabberd (>= 1:18.04-2~), rebar (>= 2.6.0)
 Standards-Version: 4.1.5
 Homepage: https://github.com/processone/ejabberd-contrib
 VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
@@ -12,7 +12,7 @@ VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
 Package: ejabberd-contrib
 Architecture: all
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ${misc:Depends},
- ejabberd (=${ejabberd}),
+ ejabberd (>=${ejabberd}),
  ejabberd-mod-cron,
  ejabberd-mod-log-chat,
  ejabberd-mod-logsession,
@@ -34,7 +34,7 @@ Description: user-contributed modules for ejabberd (metapackage)
 
 #Package: ejabberd-mod-auth-http
 #Architecture: any
-#Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+#Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 #Description: authenticate against an external REST API
 # This module allows ejabberd to authenticate user accounts against an external
 # REST API. This module is useful if you have a central user database you want
@@ -42,7 +42,7 @@ Description: user-contributed modules for ejabberd (metapackage)
 
 Package: ejabberd-mod-cron
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: execute scheduled commands
  This module allows advanced ejabberd administrators to schedule commands for
  periodic and automatic execution. Each time a scheduled task finishes its
@@ -50,13 +50,13 @@ Description: execute scheduled commands
 
 Package: ejabberd-mod-graphite
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: Gathers statistics and publishes via statsd/graphite.
  This module implements logging to statsd/graphite.
 
 Package: ejabberd-mod-log-chat
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs chat messages to text or html
  mod_log_chat is an ejabberd module aimed at logging chat messages in
  text files. mod_log_chat creates one file per couple of chatters and
@@ -66,7 +66,7 @@ Description: logs chat messages to text or html
 
 Package: ejabberd-mod-logsession
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs session connections to a text file
  This module is intended to log the session connections in a text file.
  Right now it only logs the forbidden connection attempts and the
@@ -76,7 +76,7 @@ Description: logs session connections to a text file
 
 Package: ejabberd-mod-logxml
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs XMPP packets to an XML file
  This module sniffs all the XMPP traffic sent and received by ejabberd,
  both internally and externally transmitted. It logs the XMPP packets
@@ -86,7 +86,7 @@ Description: logs XMPP packets to an XML file
 
 Package: ejabberd-mod-message-log
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: writes a line for each message to a log file
  This module writes a line for each sent or received message to a log file.
  Each line mentions the sender's JID and the recipient's JID, and also the
@@ -95,7 +95,7 @@ Description: writes a line for each message to a log file
 
 Package: ejabberd-mod-muc-log-http
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: serves MUC logs on the web
  This module serves the directory containing MUC logs already configured on
  mod_muc_log. This way there is no need to set up a separate web server to
@@ -104,7 +104,7 @@ Description: serves MUC logs on the web
 
 Package: ejabberd-mod-post-log
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs all messages to an HTTP API
  This module implements logging of all messages sent (chat and groupchat) via
  an HTTP API.
@@ -113,7 +113,7 @@ Description: logs all messages to an HTTP API
 
 Package: ejabberd-mod-pottymouth
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: filter for ejabberd messages using blacklists
  The 'mod_pottymouth' ejabberd module aims to fill the void left by 'mod_shit'
  which has disappeared from the net. It allows individual whole words of a
@@ -123,7 +123,7 @@ Description: filter for ejabberd messages using blacklists
 
 Package: ejabberd-mod-rest
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: HTTP interface to POST arbitrary stanzas to ejabberd
  This is an ejabberd module that adds an HTTP handler that allows HTTP
  clients to literally post arbitrary message stanzas to ejabberd. Those
@@ -134,7 +134,7 @@ Description: HTTP interface to POST arbitrary stanzas to ejabberd
 
 Package: ejabberd-mod-s2s-log
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs XMPP s2s connections
  This module can be used to keep a track of other XMPP servers your server has
  been connected with.
@@ -143,7 +143,7 @@ Description: logs XMPP s2s connections
 
 Package: ejabberd-mod-shcommands
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: execute shell commands via XMPP (dangerous!)
  WARNING: USE THIS MODULE AT YOUR OWN RISK !!!
  This module allows ejabberd administrators to remotely execute shell commands
@@ -174,7 +174,7 @@ Description: execute shell commands via XMPP (dangerous!)
 
 Package: ejabberd-mod-statsdx
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: calculates and gathers statistics actively
  This module measures several statistics. It provides a new section in
  ejabberd Web Admin and two ejabberd commands to view the information.
@@ -183,7 +183,7 @@ Description: calculates and gathers statistics actively
 
 Package: ejabberd-mod-webpresence
 Architecture: any
-Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (=${ejabberd}), ${misc:Depends}
+Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: allows any local ejabberd user to publish his presence information
  This module allows any local user of the ejabberd server to publish his
  presence information on the web.
