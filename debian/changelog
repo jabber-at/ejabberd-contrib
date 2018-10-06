@@ -1,10 +1,16 @@
+ejabberd-contrib (1:20181003-0.1) unstable; urgency=low
+
+  * New upstream version 20181003-0.1
+  * Fix spelling errors in previous changelog entry
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 06 Oct 2018 10:03:53 +0200
+
 ejabberd-contrib (1:20180906-0.1) unstable; urgency=low
 
-  * New upstream version `:20180906-0.1
+  * New upstream version 20180906-0.1
   * Fix exact dependency for ejabberd.
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 08 Sep 2018 11:26:05 +0200
-
 
 ejabberd-contrib (1:20180821-0.1) unstable; urgency=low
 
