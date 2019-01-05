@@ -4,7 +4,7 @@ DH_VERBOSE = 1
 include /usr/share/dpkg/default.mk
 
 BIN_PACKAGES=$(shell grep ^Package: debian/control  | sed 's/^Package: //' | grep -v ejabberd-contrib)
-EJABBERDDIR=$(shell basename `find /usr/lib -maxdepth 2 -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]-*"`)
+EJABBERDDIR=$(shell basename `find /usr/lib -regextype posix-egrep -maxdepth 2 -type d -regex ".*/ejabberd-[0-9.]{5,10}-.*"`)
 EJABBERDVER=$(shell dpkg-query --show --showformat '$${Version;-7}' ejabberd)
 
 ejabberd-mod-cron_BUILD_PATH=mod_cron/

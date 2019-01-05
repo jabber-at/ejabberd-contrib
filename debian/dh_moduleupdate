@@ -2,7 +2,7 @@
 set -e
 
 ARCH=$(dpkg-architecture -q DEB_TARGET_MULTIARCH)
-EJABBERDDIR=$(basename `find /usr/lib -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]"`)
+EJABBERDDIR=$(basename "$(find /usr/lib -regextype posix-egrep -maxdepth 2 -type d -regex ".*/ejabberd-[0-9.]{5,10}-.*")")
 
 mod_dir="debian/$1/usr/lib/$ARCH/$EJABBERDDIR/ebin/"
 if [ ! -d  "$mod_dir" ]; then
