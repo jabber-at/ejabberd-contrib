@@ -10,12 +10,12 @@ that are not marked as broken in README-broken.md, with one exception:
 To get a dfsg clean source tarball, the following directories were removed
 from the original snapshot tarball:
      atom_pubsub
-     ejabberd_auth_http/deps
      extra
      ircd
      mod_archive
      mod_openid
      mod_profile
+     */deps
 
 The complete upstream code can be retrieved from the github repository
 mentioned above.
