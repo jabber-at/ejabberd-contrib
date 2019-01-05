@@ -225,3 +225,16 @@ Index: ejabberd-contrib/mod_statsdx/src/mod_stats2file.erl
  -include("mod_roster.hrl").
  
  -define(PROCNAME, ejabberd_mod_stats2file).
+Index: ejabberd-contrib/mod_filter/src/mod_filter.erl
+===================================================================
+--- ejabberd-contrib.orig/mod_filter/src/mod_filter.erl
++++ ejabberd-contrib/mod_filter/src/mod_filter.erl
+@@ -13,7 +13,7 @@
+ -export([start/2, stop/1, depends/2, mod_options/1, filter_packet/1]).
+ 
+ -include("logger.hrl").
+--include("xmpp.hrl").
++-include_lib("p1_xmpp/include/xmpp.hrl").
+ 
+ start(_Host, _Opts) ->
+     ejabberd_hooks:add(filter_packet, global, ?MODULE, filter_packet, 100).
