@@ -1,3 +1,9 @@
+ejabberd-contrib (1:20181210-0.1) unstable; urgency=low
+
+  * New upstream version 20181210-0.1
+
+ -- Mathias Ertl <mati@jabber.at>  Sat, 05 Jan 2019 15:03:19 +0100
+
 ejabberd-contrib (1:20181003-0.1) unstable; urgency=low
 
   * New upstream version 20181003-0.1
