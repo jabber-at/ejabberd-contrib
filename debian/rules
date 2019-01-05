@@ -43,11 +43,11 @@ module-install-%:
 	if [ -f ${$*_BUILD_PATH}TODO* ]; then cp -v ${$*_BUILD_PATH}TODO* debian/$*/usr/share/doc/$*/; fi
 
 override_dh_auto_install: $(BIN_PACKAGES:%=module-install-%)
-	echo "ejabberd=$(EJABBERDVER)" > $(CURDIR)/debian/substvars
 	erlang-depends
 	dh_auto_install
 
 override_dh_gencontrol:
+	echo "ejabberd=$(EJABBERDVER)" >> $(CURDIR)/debian/substvars
 	dh_gencontrol -- -T$(CURDIR)/debian/substvars
 
 override_dh_installdeb:
