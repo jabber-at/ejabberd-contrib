@@ -2,6 +2,7 @@ ejabberd-contrib (1:20181210-0.1) unstable; urgency=low
 
   * New upstream version 20181210-0.1
   * Update repository URL to ejabberd-conrib
+  * Add Multi-Arch field to binary packages
   * Updated Standards-Version: 4.3.0 (no changes needed)
   * Remove lintian overrides that are now handled in the profile
   * Remove outdated/no-longer-relevant lintian overrides 

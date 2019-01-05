@@ -32,16 +32,9 @@ Description: user-contributed modules for ejabberd (metapackage)
  .
  This is a pure metapackage.
 
-#Package: ejabberd-mod-auth-http
-#Architecture: any
-#Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
-#Description: authenticate against an external REST API
-# This module allows ejabberd to authenticate user accounts against an external
-# REST API. This module is useful if you have a central user database you want
-# to share with ejabberd.
-
 Package: ejabberd-mod-cron
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: execute scheduled commands
  This module allows advanced ejabberd administrators to schedule commands for
@@ -50,12 +43,14 @@ Description: execute scheduled commands
 
 Package: ejabberd-mod-graphite
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: Gathers statistics and publishes via statsd/graphite.
  This module implements logging to statsd/graphite.
 
 Package: ejabberd-mod-log-chat
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs chat messages to text or html
  mod_log_chat is an ejabberd module aimed at logging chat messages in
@@ -66,6 +61,7 @@ Description: logs chat messages to text or html
 
 Package: ejabberd-mod-logsession
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs session connections to a text file
  This module is intended to log the session connections in a text file.
@@ -76,6 +72,7 @@ Description: logs session connections to a text file
 
 Package: ejabberd-mod-logxml
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs XMPP packets to an XML file
  This module sniffs all the XMPP traffic sent and received by ejabberd,
@@ -86,6 +83,7 @@ Description: logs XMPP packets to an XML file
 
 Package: ejabberd-mod-message-log
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: writes a line for each message to a log file
  This module writes a line for each sent or received message to a log file.
@@ -95,6 +93,7 @@ Description: writes a line for each message to a log file
 
 Package: ejabberd-mod-muc-log-http
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: serves MUC logs on the web
  This module serves the directory containing MUC logs already configured on
@@ -104,6 +103,7 @@ Description: serves MUC logs on the web
 
 Package: ejabberd-mod-post-log
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs all messages to an HTTP API
  This module implements logging of all messages sent (chat and groupchat) via
@@ -113,6 +113,7 @@ Description: logs all messages to an HTTP API
 
 Package: ejabberd-mod-pottymouth
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: filter for ejabberd messages using blacklists
  The 'mod_pottymouth' ejabberd module aims to fill the void left by 'mod_shit'
@@ -123,6 +124,7 @@ Description: filter for ejabberd messages using blacklists
 
 Package: ejabberd-mod-rest
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: HTTP interface to POST arbitrary stanzas to ejabberd
  This is an ejabberd module that adds an HTTP handler that allows HTTP
@@ -134,6 +136,7 @@ Description: HTTP interface to POST arbitrary stanzas to ejabberd
 
 Package: ejabberd-mod-s2s-log
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: logs XMPP s2s connections
  This module can be used to keep a track of other XMPP servers your server has
@@ -143,6 +146,7 @@ Description: logs XMPP s2s connections
 
 Package: ejabberd-mod-shcommands
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: execute shell commands via XMPP (dangerous!)
  WARNING: USE THIS MODULE AT YOUR OWN RISK !!!
@@ -174,6 +178,7 @@ Description: execute shell commands via XMPP (dangerous!)
 
 Package: ejabberd-mod-statsdx
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: calculates and gathers statistics actively
  This module measures several statistics. It provides a new section in
@@ -183,6 +188,7 @@ Description: calculates and gathers statistics actively
 
 Package: ejabberd-mod-webpresence
 Architecture: any
+Multi-Arch: same
 Depends: erlang-base (>= 1:17) | ${erlang-abi:Depends}, ${erlang:Depends}, ejabberd (>=${ejabberd}), ${misc:Depends}
 Description: allows any local ejabberd user to publish his presence information
  This module allows any local user of the ejabberd server to publish his
