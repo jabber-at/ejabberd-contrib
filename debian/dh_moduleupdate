@@ -1,10 +1,11 @@
 #!/bin/sh
+set -e
 
 ARCH=$(dpkg-architecture -q DEB_TARGET_MULTIARCH)
 EJABBERDDIR=$(basename `find /usr/lib -type d -path "*/ejabberd-[0-9][0-9].[0-9][0-9]"`)
 
 mod_dir="debian/$1/usr/lib/$ARCH/$EJABBERDDIR/ebin/"
-if [ ! -d  $mod_dir ]; then
+if [ ! -d  "$mod_dir" ]; then
 	echo "$1: Package does not install any modules."
 	exit 0
 fi
@@ -34,4 +35,4 @@ if [ "$1" = "configure" ]; then
 	done
 fi
 # End automatically added section
-' >> debian/$1.postinst.debhelper
+' >> debian/"$1".postinst.debhelper
