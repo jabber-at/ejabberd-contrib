@@ -6,8 +6,8 @@ XSBC-Orig-Maintainer: Ejabberd Packaging Team <ejabberd@deb.at>
 Build-Depends: debhelper (>= 11~), erlang-base, erlang-dev, erlang-tools, ejabberd (>= 1:18.04-2~), rebar (>= 2.6.0)
 Standards-Version: 4.1.5
 Homepage: https://github.com/processone/ejabberd-contrib
-VCS-Git: https://github.com/mathiasertl/ejabberd-modules.git
-VCS-Browser: https://github.com/mathiasertl/ejabberd-modules
+VCS-Git: https://github.com/jabber-at/ejabberd-contrib.git
+VCS-Browser: https://github.com/jabber-at/ejabberd-contrib
 
 Package: ejabberd-contrib
 Architecture: all

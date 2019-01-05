@@ -1,6 +1,7 @@
 ejabberd-contrib (1:20181210-0.1) unstable; urgency=low
 
   * New upstream version 20181210-0.1
+  * Update repository URL to ejabberd-conrib
 
  -- Mathias Ertl <mati@jabber.at>  Sat, 05 Jan 2019 15:03:19 +0100
 
