@@ -573,9 +573,14 @@ get_status_weight(Show) ->
 session_to_presence(#session{sid = {_, Pid}}) ->
     P = ejabberd_c2s:get_presence(Pid),
     #presence2{resource = (P#presence.from)#jid.resource,
-              show = misc:atom_to_binary(P#presence.show),
+              show = misc:atom_to_binary(humanize_show(P#presence.show)),
               priority = P#presence.priority,
               status = xmpp:get_text(P#presence.status)}.
+
+humanize_show(undefined) ->
+    available;
+humanize_show(Show) ->
+    Show.
 
 get_presences({bare, LUser, LServer}) ->
     [session_to_presence(Session) ||
@@ -609,7 +614,7 @@ get_presences({xml, LUser, LServer, Show_us}) ->
                                attrs = [
                                         {<<"name">>, Presence#presence2.resource},
                                         {<<"show">>, Presence#presence2.show},
-                                        {<<"priority">>, iolist_to_binary(integer_to_list(Presence#presence2.priority))}
+                                        {<<"priority">>, intund2string(Presence#presence2.priority)}
                                        ],
                                children = [{xmlcdata, Presence#presence2.status}]
                               }
@@ -706,7 +711,7 @@ long_show(<<"xa">>, Lang) -> ?T(<<"extended away">>);
 long_show(<<"dnd">>, Lang) -> ?T(<<"do not disturb">>);
 long_show(_, Lang) -> ?T(<<"unavailable">>).
 
-intund2string(undefined) -> <<"undefined">>;
+intund2string(undefined) -> intund2string(0);
 intund2string(Int) when is_integer(Int) -> list_to_binary(integer_to_list(Int)).
 
 escape(S1) ->
